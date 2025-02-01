@@ -149,3 +149,8 @@ security_default_confined = 1
 2. [Linux Kernel Security Parameters](https://kernsec.org/wiki/index.php/Kernel_Self_Protection_Project)
 3. [Virtualization Security Best Practices](https://libvirt.org/docs.html)
 4. [LUKS2 Encryption Deep Dive](https://gitlab.com/cryptsetup/cryptsetup/-/wikis/FrequentlyAskedQuestions)
+5. [Awesome Security Hardening Resources](https://github.com/decalage2/awesome-security-hardening)
+6. [Linux Server Security Guide](https://github.com/imthenachoman/How-To-Secure-A-Linux-Server)
+7. [NixOS Installation & Configuration](https://github.com/titanknis/Nixos-Installation-Guide)
+8. [NixOps Virtualization Guide](https://nixos.wiki/wiki/NixOps/Virtualization)
+9. [NixOS Configuration Explained](https://christitus.com/nixos-explained/)
