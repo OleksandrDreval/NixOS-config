@@ -54,7 +54,7 @@
       "usercopy=strict"
     ];
 
-    supportedFilesystems = [ "ntfs" ];
+    supportedFilesystems = [ "btrfs" "reiserfs" "vfat" "ext4" "f2fs" "xfs" "ntfs" "cifs" ];
 
     kernel.sysctl = {
       "kernel.unprivileged_bpf_disabled" = 1;
