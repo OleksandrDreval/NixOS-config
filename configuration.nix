@@ -137,10 +137,16 @@
         iptables -A INPUT -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
         iptables -A INPUT -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
       '';
+      
       extraStopCommands = ''
         iptables -F
         iptables -X
       '';
+
+      checkReversePath = "loose";
+      logReversePathDrops = true;
+      autoLoadConntrackHelpers = false;
+      connectionTrackingModules = [ "ftp" "irc" "sane" "sip" "tftp" ];
     };
   };
 
@@ -195,11 +201,14 @@
     openssh = {
       enable = false;
       settings = {
+        AllowAgentForwarding = false;
+        AllowStreamLocalForwarding = false;
+        AllowTcpForwarding = false;
+        AuthenticationMethods = "publickey";
+        KbdInteractiveAuthentication = false;
         PasswordAuthentication = false;
         PermitRootLogin = "no";
         X11Forwarding = false;
-        AllowTcpForwarding = false;
-        AllowAgentForwarding = false;
         MaxAuthTries = 3;
         LoginGraceTime = "30s";
       };
@@ -286,6 +295,7 @@
         "-a always,exit -F arch=b64 -S execve -k process_execution"
         "-a always,exit -F arch=b64 -S bind -k network_bind"
         "-a always,exit -F arch=b64 -S connect -k network_connect"
+        "-a exit,always -F arch=b64 -S execve"
       ];
     };
 
@@ -314,20 +324,21 @@
       enable = true;
       enforce = true;
     };
+
+    /* apparmor = {
+      enable = true;
+      killUnconfinedConfinables = true;
+    }; */
   };
 
-  /* security.apparmor = {
-    enable = true;
-    killUnconfinedConfinables = true;
-  }; */
 
   # NIX
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
+    extra-experimental-features = [ "nix-command" "flakes" ];
     sandbox = true;
     auto-optimise-store = true;
-    trusted-users = [ "root" "oleksandr" ];
-    allowed-users = [ "root" "oleksandr" ];
+    trusted-users = [ "root" "@wheel" ];
+    allowed-users = [ "root" "@wheel" ];
   };
 
   nixpkgs.config.allowUnfree = true;
