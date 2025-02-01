@@ -14,9 +14,9 @@ device = "/dev/disk/by-uuid/...";
 systemd.enable = true; # Використання systemd-initrd
 };
 
-- **LUKS2** шифрування диска з TPM2 інтеграцією
+- **LUKS2** шифрування диска без інтеграції TPM2 
 - Обмеження доступу до EFI-змін (`canTouchEfiVariables = false`)
-- Secure Boot через `sbctl` (пакет 351)
+- Secure Boot через `sbctl`
 
 
 ### 2. Параметри ядра Linux
