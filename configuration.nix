@@ -343,6 +343,7 @@
 
   nixpkgs.config.allowUnfree = true;
 
+
   # ПАКЕТИ
   environment.systemPackages = with pkgs; [
     /* Код та текст */
