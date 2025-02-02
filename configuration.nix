@@ -15,9 +15,9 @@
         consoleMode = "max";
         configurationLimit = 5;
         editor = false;
+        timeout = 10;
       };
       
-      timeout = 10;
       efi = {
         canTouchEfiVariables = false;
         efiSysMountPoint = "/boot";
@@ -35,26 +35,26 @@
     /* Завантажувальні модулі ядра дулі ядра */
     kernelModules = [ "kvm-amd" ];
     kernelParams = [
-      "kernel.printk=\"3 4 1 3\""
-      "slab_nomerge"
       "amd_iommu=pt"
+      "debugfs=off"
       "init_on_alloc=1"
       "init_on_free=1"
-      "slub_debug=FZP"
-      "page_poison=1"
+      "kernel.printk=\"3 4 1 3\""
       "l1tf=full,force"
+      "lockdown=confidentiality:integrity"
       "mds=full,nosmt"
-      "spectre_v2=on"
-      "spec_store_bypass_disable=on"
-      "stf_barrier=on"
       "module.sig_enforce=1"
-      "slab_merge=off"
-      "randomize_kstack_offset=on"
+      "page_alloc.shuffle=1"
+      "page_poison=1"
       "pti=on"
-      "vsyscall=none"
-      "debugfs=off"
-      "lockdown=confidentiality"
+      "randomize_kstack_offset=on"
+      "slab_nomerge"
+      "slub_debug=FZP"
+      "spec_store_bypass_disable=on"
+      "spectre_v2=on"
+      "stf_barrier=on"
       "usercopy=strict"
+      "vsyscall=none"
     ];
 
     /* Підтримувані файлові системи */
@@ -62,25 +62,38 @@
 
     /* Безпекові налаштування парметрів ядра */
     kernel.sysctl = {
-      "kernel.unprivileged_bpf_disabled" = 1;
-      "net.core.bpf_jit_harden" = 2;
+      "kernel.dmesg_restrict" = 1;
+      "kernel.ftrace_enabled" = false;
       "kernel.kptr_restrict" = 2;
       "kernel.perf_event_paranoid" = 3;
-      "net.ipv4.conf.all.rp_filter" = 1;
-      "net.ipv4.conf.default.rp_filter" = 1;
-      "net.ipv4.tcp_syncookies" = 1;
-      "net.ipv4.conf.all.accept_redirects" = 0;
-      "net.ipv4.conf.default.accept_redirects" = 0;
-      "net.ipv4.conf.all.send_redirects" = 0;
-      "net.ipv4.conf.default.send_redirects" = 0;
+      "kernel.randomize_va_space" = 2;
+      "kernel.unprivileged_bpf_disabled" = 1;
       "kernel.yama.ptrace_scope" = 2;
+      "net.core.bpf_jit_enable" = false;
+      "net.core.bpf_jit_harden" = 2;
+      "net.ipv4.conf.all.accept_redirects" = 0;
       "net.ipv4.conf.all.log_martians" = 1;
+      "net.ipv4.conf.all.rp_filter" = 1;
+      "net.ipv4.conf.all.secure_redirects" = false;
+      "net.ipv4.conf.all.send_redirects" = 0;
+      "net.ipv4.conf.default.accept_redirects" = 0;
       "net.ipv4.conf.default.log_martians" = 1;
+      "net.ipv4.conf.default.rp_filter" = 1;
+      "net.ipv4.conf.default.secure_redirects" = false;
+      "net.ipv4.conf.default.send_redirects" = 0;
       "net.ipv4.icmp_echo_ignore_broadcasts" = 1;
       "net.ipv4.icmp_ignore_bogus_error_responses" = 1;
+      "net.ipv4.tcp_syncookies" = 1;
+      "net.ipv6.conf.all.accept_redirects" = false;
+      "net.ipv6.conf.default.accept_redirects" = false;
       "vm.unprivileged_userfaultfd" = 0;
-      "kernel.randomize_va_space" = 2;
     };
+
+    /* Банлист файлових систем */
+    blacklistedKernelModules = [
+      "ax25" "netrom" "rose"
+      "adfs" "affs" "befs" "bfs" "cramfs" "efs" "erofs" "exofs" "f2fs" "freevxfs" "hfs" "hpfs" "jfs" "minix" "nilfs2" "omfs" "qnx4" "qnx6" "sysv" "ufs"
+    ];
   };
 
 
@@ -92,7 +105,6 @@
     nameservers = [ "1.1.1.1" "8.8.8.8" ];
 
     networkmanager.enable = true;
-    };
 
     /* Брандмауер */
     firewall = {
@@ -100,19 +112,15 @@
       allowedTCPPorts = [
         53   # DNS
         80   # HTTP
-        123  # NTP
         443  # HTTPS
         8080 # AltHTTP
         8443 # AltHTTPS
-        5353 # mDNS
       ];
 
       allowedUDPPorts = [
         53   # DNS
         67   # DHCP
         68   # DHCP
-        123  # NTP
-        5353 # mDNS
       ];
 
       /* IPtables */
@@ -138,6 +146,10 @@
         iptables -A INPUT -p tcp --tcp-flags ALL URG,PSH,FIN -j DROP
         iptables -A INPUT -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
         iptables -A INPUT -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
+        iptables -A INPUT -p udp --dport 123 -s 192.168.1.0/24 -j ACCEPT
+        iptables -A INPUT -p udp --dport 5353 -s 192.168.1.0/24 -j ACCEPT
+        iptables -A INPUT -p udp --dport 123 -j DROP
+        iptables -A INPUT -p udp --dport 5353 -j DROP
       '';
       
       extraStopCommands = ''
@@ -145,10 +157,13 @@
         iptables -X
       '';
 
-      checkReversePath = "loose";
-      logReversePathDrops = true;
       autoLoadConntrackHelpers = false;
+      checkReversePath = "strict";
       connectionTrackingModules = [ "ftp" "irc" "sane" "sip" "tftp" ];
+      logReversePathDrops = true;
+
+      /*Журналювання відхилених з'єднань */
+      logDenied = "all";
     };
   };
 
@@ -189,19 +204,22 @@
 
     # ЖУРНАЛЮВАННЯ
     journald.extraConfig = ''
-      Storage=persistent
-      SystemMaxUse=500M
-      ForwardToSyslog=yes
-      Compress=yes
-      Seal=yes
       Audit=yes
+      Compress=yes
+      ForwardToSyslog=yes
       MaxFileSec=1week
-      RateLimitInterval=30s
-      RateLimitBurst=100
-      MaxLevelStore=info
+      MaxLevelStore=warning
       MaxLevelSyslog=err
       MaxRetentionSec=1week
+      RateLimitBurst=100
+      RateLimitInterval=30s
+      RuntimeKeepFree=200M
+      RuntimeMaxUse=100M
+      Seal=yes
+      Storage=persistent
+      SystemKeepFree=1G
       SystemMaxFiles=100
+      SystemMaxUse=500M
     '';
 
     # SSH
@@ -213,11 +231,11 @@
         AllowTcpForwarding = false;
         AuthenticationMethods = "publickey";
         KbdInteractiveAuthentication = false;
+        LoginGraceTime = "30s";
+        MaxAuthTries = 3;
         PasswordAuthentication = false;
         PermitRootLogin = "no";
         X11Forwarding = false;
-        MaxAuthTries = 3;
-        LoginGraceTime = "30s";
       };
       
       authorizedKeys = [ "ssh-ed25519 AAAAC3..." ];
@@ -226,12 +244,12 @@
 
     # ПОВЕДІНКА ПРИ ВИМКНЕННІ
     logind = {
-      powerKey = "ignore";
-      rebootKey = "ignore";
+      hibernateKey = "ignore";
       lidSwitch = "ignore";
       lidSwitchDocked = "ignore";
       lidSwitchExternalPower = "ignore";
-      hibernateKey = "ignore";
+      powerKey = "ignore";
+      rebootKey = "ignore";
       suspendKey = "ignore";
     };
   };
@@ -286,8 +304,9 @@
       enable = true;
       execWheelOnly = true;
       extraConfig = ''
-        Defaults timestamp_timeout=15
+        Defaults insults
         Defaults passwd_timeout=25
+        Defaults timestamp_timeout=15
         Defaults use_pty
       '';
     };
@@ -298,26 +317,31 @@
       enable = true;
       rules = [
         "-a always,exit -F arch=b64 -S execve -k process_execution"
-        "-a always,exit -F arch=b64 -S bind -k network_bind"
-        "-a always,exit -F arch=b64 -S connect -k network_connect"
-        "-a exit,always -F arch=b64 -S execve"
+        "-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EACCES -k access"
+        "-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EPERM -k access"
       ];
     };
 
     /* Безпека та цілісність ядра */
-    protectKernelImage = true;
-    lockKernelModules = true;
+    allowSimultaneousMultithreading = false;
+    forcePageTableIsolation = true;
     hideProcessesInformation = true;
+    lockKernelModules = true;
+    protectKernelImage = true;
     restrictSUIDSGID = true;
     unprivilegedUsernsClone = false;
-    forcePageTableIsolation = true;
-    allowSimultaneousMultithreading = false;
     virtualisation.flushL1DataCache = "always";
 
     /* Pluggable Authentication Modules */
     pam = {
       services = {
-        login.enableKrb5 = false;
+        login = {
+          enableKrb5 = false;
+          allowNullPasswords = false;
+          failDelay = 4000000;
+          maxRetries = 3;
+          unlockTime = 600;
+        };
         sudo.enableKrb5 = false;
         sshd.enableKrb5 = false;
       };
@@ -338,6 +362,9 @@
       killUnconfinedConfinables = true;
     }; */
   };
+
+  environment.memoryAllocator.provider = "scudo";
+  environment.variables.SCUDO_OPTIONS = "ZeroContents=1";
 
 
   # NIX
@@ -396,8 +423,8 @@
       extraConfig = ''
         security_default_confined = 1
         security_driver = "selinux"
-        user = "libvirt-qemu"
-        group = "libvirt-qemu"
+        user = "@libvirt"
+        group = "@libvirt"
         dynamic_ownership = 1
         remember_owner = 1
         cgroup_device_acl = [
@@ -407,6 +434,8 @@
         ]
         seccomp_sandbox = 1
         memory_backing_dir = "/var/lib/libvirt/memory"
+        cgroup_controllers = [ "cpu" "memory" "pids" ]
+        cgroup_device_acl = []
       '';
 
       allowedBridges = [ "virbr0" "br0" ];
