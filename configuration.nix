@@ -29,7 +29,10 @@
       systemd.enable = true;
     };
 
+    /* Використання останньої версії ядра */
     kernelPackages = pkgs.linuxPackages_latest;
+
+    /* Завантажувальні модулі ядра дулі ядра */
     kernelModules = [ "kvm-amd" ];
     kernelParams = [
       "kernel.printk=\"3 4 1 3\""
@@ -54,8 +57,10 @@
       "usercopy=strict"
     ];
 
+    /* Підтримувані файлові системи */
     supportedFilesystems = [ "btrfs" "reiserfs" "vfat" "ext4" "f2fs" "xfs" "ntfs" "cifs" ];
 
+    /* Безпекові налаштування парметрів ядра */
     kernel.sysctl = {
       "kernel.unprivileged_bpf_disabled" = 1;
       "net.core.bpf_jit_harden" = 2;
@@ -86,14 +91,10 @@
     tempAddresses = "disabled";
     nameservers = [ "1.1.1.1" "8.8.8.8" ];
 
-    networkmanager = {
-      enable = true;
-      interfaces."wlp2s0".wpaConfig = {
-        ssid = "TP-Link_5D4E";
-        psk = "hash:";
-      };
+    networkmanager.enable = true;
     };
 
+    /* Брандмауер */
     firewall = {
       enable = true;
       allowedTCPPorts = [
@@ -114,6 +115,7 @@
         5353 # mDNS
       ];
 
+      /* IPtables */
       logRefusedConnections = true;
       allowPing = false;
       logIPv6Drops = true;
@@ -157,10 +159,15 @@
     hardwareClockInLocalTime = true;
   };
 
+  /* Мова інтерфейсу */
   i18n = {
     defaultLocale = "uk_UA.UTF-8";
     extraLocaleSettings = { LC_ALL = "uk_UA.UTF-8"; };
   };
+
+
+  # КОНСОЛЬ
+  console.keyMap = "us";
 
 
   # СЕРВІСИ
@@ -242,10 +249,6 @@
     ];
 
 
-  # КОНСОЛЬ
-  console.keyMap = "us";
-
-
   # АУДІО
   security.rtkit.enable = true;
   hardware.pulseaudio.enable = false;
@@ -277,6 +280,8 @@
   users.users.root.hashedPassword = "  ";
 
   security = {
+
+    /* sudo */
     sudo = {
       enable = true;
       execWheelOnly = true;
@@ -287,8 +292,8 @@
       '';
     };
 
+    /* Аудит */
     auditd.enable = true;
-
     audit = {
       enable = true;
       rules = [
@@ -299,6 +304,7 @@
       ];
     };
 
+    /* Безпека та цілісність ядра */
     protectKernelImage = true;
     lockKernelModules = true;
     hideProcessesInformation = true;
@@ -308,6 +314,7 @@
     allowSimultaneousMultithreading = false;
     virtualisation.flushL1DataCache = "always";
 
+    /* Pluggable Authentication Modules */
     pam = {
       services = {
         login.enableKrb5 = false;
@@ -320,6 +327,7 @@
       ];
     };
 
+    /* Security-Enhanced Linux */
     selinux = {
       enable = true;
       enforce = true;
@@ -341,6 +349,7 @@
     allowed-users = [ "root" "@wheel" ];
   };
 
+  /* Використання пропрієтарного ПО */
   nixpkgs.config.allowUnfree = true;
 
 
