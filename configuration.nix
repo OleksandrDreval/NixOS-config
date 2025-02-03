@@ -30,7 +30,7 @@
     };
 
     /* Використання останньої версії ядра */
-    kernelPackages = pkgs.linuxPackages_latest;
+    kernelPackages = pkgs.linuxPackages_hardened;
 
     /* Завантажувальні модулі ядра дулі ядра */
     kernelModules = [ "kvm-amd" ];
@@ -58,7 +58,9 @@
     ];
 
     /* Підтримувані файлові системи */
-    supportedFilesystems = [ "btrfs" "reiserfs" "vfat" "ext4" "f2fs" "xfs" "ntfs" "cifs" ];
+    boot.supportedFilesystems =
+    [ "btrfs" "reiserfs" "vfat" "ext4" "f2fs" "xfs" "ntfs" "cifs" ] ++
+    lib.optional (lib.meta.availableOn pkgs.stdenv.hostPlatform config.boot.zfs.package) "zfs";
 
     /* Безпекові налаштування парметрів ядра */
     kernel.sysctl = {
@@ -254,6 +256,7 @@
     };
   };
 
+
   # ШРИФТИ
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
@@ -394,6 +397,8 @@
     /* Інструменти */
     wget
     curl
+    unzip
+    zip
 
     /* Віртуалізація */
     sbctl
