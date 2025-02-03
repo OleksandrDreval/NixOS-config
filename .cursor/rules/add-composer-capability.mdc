@@ -1,0 +1,5 @@
+---
+description: How to add a new composer capability. Useful to add logic that hooks onto Composer functions like stream chat, apply
+globs: 
+---
+How to add a new composer capability. Useful to add logic that hooks onto Composer functions like stream chat, apply
