@@ -111,40 +111,67 @@
 
   # МЕРЕЖА
   networking = {
-    hostName        = "nixos";
-    enableIPv6      = true;
-    tempAddresses   = "disabled";
-    nameservers     = [ "1.1.1.1" "8.8.8.8" ];
+    hostName = "nixos"; # Ім'я хоста
+    enableIPv6 = true;  # Увімкнення IPv6
+    tempAddresses = "disabled"; # Вимкнення тимчасових адрес
 
-    networkmanager.enable = true;
+    # DNS-сервери
+    nameservers = [
+      "1.1.1.1" # Cloudflare
+      "8.8.8.8" # Google Public DNS
+      "9.9.9.9" # Quad9
+    ];
+    networkmanager.enable = true; # Використання NetworkManager
 
-    /* Брандмауер */
+
+    #БРАНДМАУЕР:
     firewall = {
-      enable = true;
+      enable = true;  # Увімкнення брандмауера
+
+      # Дозволені TCP порти:
       allowedTCPPorts = [
         53   # DNS
         80   # HTTP
         443  # HTTPS
-        8080 # AltHTTP
-        8443 # AltHTTPS
+        8080 # Альтернативний HTTP
+        8443 # Альтернативний HTTPS
       ];
 
+      # Дозволені UDP порти:
       allowedUDPPorts = [
         53   # DNS
-        67   # DHCP
-        68   # DHCP
+        67   # DHCP-клієнт
+        68   # DHCP-сервер
       ];
 
-      /* IPtables */
-      logRefusedConnections   = true;
-      allowPing               = false;
-      logIPv6Drops            = true;
+      logRefusedConnections = true; # Логування відхилених з'єднань
+      allowPing = false;    # Заборона ping
+      logIPv6Drops = true;  # Логування відкинутих IPv6 пакетів
+      
+
+      ####################################
+      #            IPtables:             #
+      ####################################
+      /*  Дозволити 5 SYN пакетів в секунду, з burst 10, для запобігання SYN flood
+          Відкидати всі інші SYN пакети
+          Відкидати невалідні пакети
+          Відкидати нові TCP пакети, які не є SYN  */
+
+      /*  Блокування різних комбінацій TCP прапорів (захист від аномального трафіку)  */
+
+      /*  Блокувати NTP ззовні
+          Дозволити NTP з локальної мережі
+          Блокувати mDNS запроси ззовні
+          Дозволити mDNS з локальної мережі  */
+
+      /*  Блокування ICMP echo-request (ping)  */
+
       extraCommands = ''
         iptables -A INPUT -p tcp --syn -m limit --limit 5/s --limit-burst 10 -j ACCEPT
         iptables -A INPUT -p tcp --syn -j DROP
         iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
         iptables -A INPUT -p tcp ! --syn -m conntrack --ctstate NEW -j DROP
-        
+
         iptables -A INPUT -p tcp --tcp-flags ALL NONE -j DROP
         iptables -A INPUT -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
         iptables -A INPUT -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
@@ -160,27 +187,27 @@
         iptables -A INPUT -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
         iptables -A INPUT -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
 
+        iptables -A INPUT -p udp --dport 123 -j DROP
         iptables -A INPUT -p udp --dport 123 -s 192.168.1.0/24 -j ACCEPT
         iptables -A INPUT -p udp --dport 5353 -j DROP
         iptables -A INPUT -p udp --dport 5353 -s 192.168.1.0/24 -j ACCEPT
-        iptables -A INPUT -p udp --dport 123 -j DROP
-
+        
         iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
         ip6tables -A INPUT -p icmpv6 --icmpv6-type echo-request -j DROP
       '';
-      
+
+      # Очищення правил IPtables при зупинці
       extraStopCommands = ''
         iptables -F
         iptables -X
       '';
 
-      autoLoadConntrackHelpers    = false;
-      checkReversePath            = "strict";
-      connectionTrackingModules   = [ "ftp" "irc" "sane" "sip" "tftp" ];
-      logReversePathDrops         = true;
-
-      /* Журналювання відхилених з'єднань */
-      logDenied = "all";
+      autoLoadConntrackHelpers = false; # Вимкнення автоматичного завантаження conntrack helpers
+      checkReversePath = "strict";      # Строга перевірка зворотнього шляху
+      connectionTrackingModules = [ "ftp" "irc" "sane" "sip" "tftp" ];  # Модулі для відстеження з'єднань
+  
+      logReversePathDrops = true; # Логування відкинутих пакетів через зворотній шлях
+      logDenied = "all";          # Журналювання всіх відхилених з'єднань
     };
   };
 
