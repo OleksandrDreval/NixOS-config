@@ -13,54 +13,54 @@
     systemd-boot як основний завантажувач */
     loader = {
       systemd-boot = {
-        enable              = true;  # Увімкнення systemd-boot
-        consoleMode         = "max"; # Максимальна роздільна здатність консолі
-        configurationLimit  = 5;     # Зберігати останні 5 конфігурацій завантаження
-        editor              = false; # Вимкнення редактора в меню завантаження
-        timeout             = 10;    # Час очікування вибору в меню завантаження (10 секунд)
+        enable              = true;   # Увімкнення systemd-boot
+        consoleMode         = "max";  # Максимальна роздільна здатність консолі
+        configurationLimit  = 5;      # Зберігати останні 5 конфігурацій завантаження
+        editor              = false;  # Вимкнення редактора в меню завантаження
+        timeout             = 10;     # Час очікування вибору в меню завантаження 10 секунд
       };
       
       efi = {
-        canTouchEfiVariables  = false;   # Не дозволяти systemd-boot змінювати змінні EFI
-        efiSysMountPoint      = "/boot"; # Точка монтування EFI розділу
+        canTouchEfiVariables  = false;    # Не дозволяти systemd-boot змінювати змінні EFI
+        efiSysMountPoint      = "/boot";  # Точка монтування EFI розділу
       };
     };
 
     # Налаштування initrd (initial RAM disk)
     initrd = {
       # Налаштування LUKS шифрування
-      luks.devices."luks-911765a7-6ecb-4c99-88ef-b44c26fd3583".device = "/dev/disk/by-uuid/911765a7-6ecb-4c99-88ef-b44c26fd3583"; # Пристрій з LUKS шифруванням
+      luks.devices."luks-911765a7-6ecb-4c99-88ef-b44c26fd3583".device = "/dev/disk/by-uuid/911765a7-6ecb-4c99-88ef-b44c26fd3583";
       systemd.enable = true; # Увімкнення systemd в initrd
     };
 
-    # Використання захищеного ядра (hardened kernel) для підвищення безпеки
+    # Використання hardened kernel для підвищення безпеки
     kernelPackages = pkgs.linuxPackages_hardened;
 
-    # Завантажувальні модулі ядра, необхідні для віртуалізації (kvm-amd)
+    # Завантажувальні модулі ядра, необхідні для віртуалізації kvm-amd
     kernelModules = [ "kvm-amd" ];
 
     # Параметри ядра для безпеки та продуктивності
     kernelParams = [
-      "amd_iommu                  =pt"  # AMD IOMMU Passthrough
-      "debugfs                    =off" # Вимкнення debugfs для безпеки
-      "init_on_alloc              =1"   # Ініціалізація пам'яті при виділенні
-      "init_on_free               =1"   # Ініціалізація пам'яті при звільненні
-      "kernel.printk              =\"3 4 1 3\"" # Налаштування рівня виводу ядра
-      "l1tf                       =full,force"  # Захист від L1 Terminal Fault
-      "lockdown                   =confidentiality:integrity" # Режим блокування ядра
-      "mds                        =full,nosmt"                # Захист від Microarchitectural Data Sampling
-      "module.sig_enforce         =1"   # Вимагати підписи модулів ядра
-      "page_alloc.shuffle         =1"   # Рандомізація виділення сторінок пам'яті
-      "page_poison                =1"   # Заповнення звільненої пам'яті значеннями для запобігання витоку даних
-      "pti                        =on"  # Page Table Isolation
-      "randomize_kstack_offset    =on"  # Рандомізація зміщення стеку ядра
-      "slab_nomerge"                    # Вимкнення об'єднання slab-ів
-      "slub_debug                 =FZP" # Налагодження SLAB allocator
-      "spec_store_bypass_disable  =on"  # Захист від Spectre store bypass
-      "spectre_v2                 =on"  # Захист від Spectre v2
-      "stf_barrier                =on"  # Single Thread Fault barrier
-      "usercopy                   =strict" # Суворі перевірки копіювання даних з/в user space
-      "vsyscall                   =none"   # Вимкнення vsyscall
+      "amd_iommu                  =pt"    # AMD IOMMU Passthrough
+      "debugfs                    =off"   # Вимкнення debugfs для безпеки
+      "init_on_alloc              =1"     # Ініціалізація пам'яті при виділенні
+      "init_on_free               =1"     # Ініціалізація пам'яті при звільненні
+      "kernel.printk              =\"3 4 1 3\""   # Налаштування рівня виводу ядра
+      "l1tf                       =full,force"    # Захист від L1 Terminal Fault
+      "lockdown                   =confidentiality:integrity"   # Режим блокування ядра
+      "mds                        =full,nosmt"                  # Захист від Microarchitectural Data Sampling
+      "module.sig_enforce         =1"     # Вимагати підписи модулів ядра
+      "page_alloc.shuffle         =1"     # Рандомізація виділення сторінок пам'яті
+      "page_poison                =1"     # Заповнення звільненої пам'яті значеннями для запобігання витоку даних
+      "pti                        =on"    # Page Table Isolation
+      "randomize_kstack_offset    =on"    # Рандомізація зміщення стеку ядра
+      "slab_nomerge"                      # Вимкнення об'єднання slab-ів
+      "slub_debug                 =FZP"   # Налагодження SLAB allocator
+      "spec_store_bypass_disable  =on"    # Захист від Spectre store bypass
+      "spectre_v2                 =on"    # Захист від Spectre v2
+      "stf_barrier                =on"    # Single Thread Fault barrier
+      "usercopy                   =strict"  # Суворі перевірки копіювання даних з/в user space
+      "vsyscall                   =none"    # Вимкнення vsyscall
     ];
 
     /* Підтримувані файлові системи */
@@ -70,31 +70,31 @@
 
     /* Безпекові налаштування парметрів ядра sysctl*/
     kernel.sysctl = {
-      "kernel.dmesg_restrict"                       = 1; # Обмеження доступу до dmesg
-      "kernel.ftrace_enabled"                       = false; # Вимкнення ftrace
-      "kernel.kptr_restrict"                        = 2; # Обмеження доступу до адрес ядра
-      "kernel.perf_event_paranoid"                  = 3; # Параноїдальний режим для perf events
-      "kernel.randomize_va_space"                   = 2; # Рандомізація адресного простору
-      "kernel.unprivileged_bpf_disabled"            = 1; # Вимкнення BPF для непривілейованих користувачів
-      "kernel.yama.ptrace_scope"                    = 2; # Обмеження ptrace
-      "net.core.bpf_jit_enable"                     = false; # Вимкнення JIT для BPF
-      "net.core.bpf_jit_harden"                     = 2; # Зміцнення JIT для BPF
-      "net.ipv4.conf.all.accept_redirects"          = 0; # Не приймати ICMP redirects
-      "net.ipv4.conf.all.log_martians"              = 1; # Логувати "марсіанські" пакети
-      "net.ipv4.conf.all.rp_filter"                 = 1; # Reverse path filtering
-      "net.ipv4.conf.all.secure_redirects"          = false; # Не приймати redirects від будь-кого
-      "net.ipv4.conf.all.send_redirects"            = 0; # Не надсилати redirects
-      "net.ipv4.conf.default.accept_redirects"      = 0; #  (те саме, що і вище, але для інтерфейсу за замовчуванням)
+      "kernel.dmesg_restrict"                       = 1;      # Обмеження доступу до dmesg
+      "kernel.ftrace_enabled"                       = false;  # Вимкнення ftrace
+      "kernel.kptr_restrict"                        = 2;      # Обмеження доступу до адрес ядра
+      "kernel.perf_event_paranoid"                  = 3;      # Параноїдальний режим для perf events
+      "kernel.randomize_va_space"                   = 2;      # Рандомізація адресного простору
+      "kernel.unprivileged_bpf_disabled"            = 1;      # Вимкнення BPF для непривілейованих користувачів
+      "kernel.yama.ptrace_scope"                    = 2;      # Обмеження ptrace
+      "net.core.bpf_jit_enable"                     = false;  # Вимкнення JIT для BPF
+      "net.core.bpf_jit_harden"                     = 2;      # Зміцнення JIT для BPF
+      "net.ipv4.conf.all.accept_redirects"          = 0;      # Не приймати ICMP redirects
+      "net.ipv4.conf.all.log_martians"              = 1;      # Логувати "марсіанські" пакети
+      "net.ipv4.conf.all.rp_filter"                 = 1;      # Reverse path filtering
+      "net.ipv4.conf.all.secure_redirects"          = false;  # Не приймати redirects від будь-кого
+      "net.ipv4.conf.all.send_redirects"            = 0;      # Не надсилати redirects
+      "net.ipv4.conf.default.accept_redirects"      = 0;      # те саме, що і вище, але для інтерфейсу за замовчуванням
       "net.ipv4.conf.default.log_martians"          = 1;
       "net.ipv4.conf.default.rp_filter"             = 1;
       "net.ipv4.conf.default.secure_redirects"      = false;
       "net.ipv4.conf.default.send_redirects"        = 0;
-      "net.ipv4.icmp_echo_ignore_broadcasts"        = 1; # Ігнорувати broadcast ping
-      "net.ipv4.icmp_ignore_bogus_error_responses"  = 1; # Ігнорувати неправильні ICMP повідомлення про помилки
-      "net.ipv4.tcp_syncookies"                     = 1; # Увімкнення SYN cookies для захисту від SYN flood
-      "net.ipv6.conf.all.accept_redirects"          = false; # Не приймати IPv6 redirects
-      "net.ipv6.conf.default.accept_redirects"      = false; # (те саме для IPv6 інтерфейсу за замовчуванням)
-      "vm.unprivileged_userfaultfd"                 = 0; # Вимкнення userfaultfd для непривілейованих користувачів
+      "net.ipv4.icmp_echo_ignore_broadcasts"        = 1;      # Ігнорувати broadcast ping
+      "net.ipv4.icmp_ignore_bogus_error_responses"  = 1;      # Ігнорувати неправильні ICMP повідомлення про помилки
+      "net.ipv4.tcp_syncookies"                     = 1;      # Увімкнення SYN cookies для захисту від SYN flood
+      "net.ipv6.conf.all.accept_redirects"          = false;  # Не приймати IPv6 redirects
+      "net.ipv6.conf.default.accept_redirects"      = false;  # те саме для IPv6 інтерфейсу за замовчуванням
+      "vm.unprivileged_userfaultfd"                 = 0;      # Вимкнення userfaultfd для непривілейованих користувачів
     };
 
     /* Бан-лист небезпечних або застрілих модулів ядра та файлових систем */
@@ -130,18 +130,18 @@
 
       # Дозволені TCP порти:
       allowedTCPPorts = [
-        53   # DNS
-        80   # HTTP
-        443  # HTTPS
-        8080 # Альтернативний HTTP
-        8443 # Альтернативний HTTPS
+        53    # DNS
+        80    # HTTP
+        443   # HTTPS
+        8080  # Альтернативний HTTP
+        8443  # Альтернативний HTTPS
       ];
 
       # Дозволені UDP порти:
       allowedUDPPorts = [
-        53   # DNS
-        67   # DHCP-клієнт
-        68   # DHCP-сервер
+        53  # DNS
+        67  # DHCP-клієнт
+        68  # DHCP-сервер
       ];
 
       logRefusedConnections = true; # Логування відхилених з'єднань
@@ -149,22 +149,22 @@
       logIPv6Drops = true;  # Логування відкинутих IPv6 пакетів
       
 
-      ####################################
-      #            IPtables:             #
-      ####################################
+                      ####################################
+                      #             IPtables             #
+                      ####################################
       /*  Дозволити 5 SYN пакетів в секунду, з burst 10, для запобігання SYN flood
           Відкидати всі інші SYN пакети
           Відкидати невалідні пакети
           Відкидати нові TCP пакети, які не є SYN  */
 
-      /*  Блокування різних комбінацій TCP прапорів (захист від аномального трафіку)  */
+      /*  Блокування різних комбінацій TCP прапорів, захист від аномального трафіку  */
 
       /*  Блокувати NTP ззовні
           Дозволити NTP з локальної мережі
           Блокувати mDNS запроси ззовні
           Дозволити mDNS з локальної мережі  */
 
-      /*  Блокування ICMP echo-request (ping)  */
+      /*  Блокування ICMP echo-request, ping  */
 
       extraCommands = ''
         iptables -A INPUT -p tcp --syn -m limit --limit 5/s --limit-burst 10 -j ACCEPT
@@ -213,93 +213,112 @@
 
 
   # ЛОКАЛІЗАЦІЯ
+  # Налаштування часового поясу та годинника
   time = {
-    timeZone                  = "Europe/Kyiv";
-    hardwareClockInLocalTime  = true;
+    timeZone                  = "Europe/Kyiv";  # Встановлюємо часовий пояс Київ
+    hardwareClockInLocalTime  = true;           # Годинник системи працює у локальному часі
   };
 
-  /* Мова інтерфейсу */
+  # Налаштування локалізації та мови інтерфейсу
   i18n = {
-    defaultLocale         = "uk_UA.UTF-8";
-    extraLocaleSettings   = { LC_ALL = "uk_UA.UTF-8"; };
+    defaultLocale       = "uk_UA.UTF-8";                # Встановлюємо мову за замовчуванням (UTF-8 кодування)
+    extraLocaleSettings = { LC_ALL = "uk_UA.UTF-8"; };  # Встановлюємо мову для всіх категорій локалізації.
   };
 
-
-  # КОНСОЛЬ
+  # Налаштування макету клавіатури консолі
+  # Використовуємо американську розкладку клавіатури.
   console.keyMap = "us";
 
 
   # СЕРВІСИ
   services = {
-
-    # ГРАФІЧНИЙ ІНТЕРФЕЙС та взаємодія
+    # ГРАФІЧНИЙ ІНТЕРФЕЙС та взаємодія з ним.
+    # Вмикаємо X server з розкладками клавіатури "us" та "ua",
+    # дозволяючи перемикання між ними за допомогою Alt+Shift.
     xserver = {
       enable      = true;
       layout      = "us,ua";
       xkbOptions  = "grp:alt_shift_toggle";
     };
 
+    # Вмикаємо libinput для керування пристроями вводу.
     libinput.enable = true;
 
+    # Використовуємо sddm як дисплей менеджер та Plasma 5 як робоче середовище.
     displayManager = {
       sddm.enable                     = true;
-      desktopManager.plasma5.enable   = true;
+      desktopManager.plasma6.enable   = true;
     };
+
 
     # ЖУРНАЛЮВАННЯ
+    # Налаштування journald для журналювання подій системи.
+    # Вмикаємо аудит, стиснення логів, пересилання до syslog,
+    # встановлюємо обмеження на розмір та час зберігання файлів,
+    # а також інші параметри для оптимізації та безпеки.
     journald.extraConfig = ''
-      Audit             =yes
-      Compress          =yes
-      ForwardToSyslog   =yes
-      MaxFileSec        =1week
-      MaxLevelStore     =warning
-      MaxLevelSyslog    =err
-      MaxRetentionSec   =1week
-      RateLimitBurst    =100
-      RateLimitInterval =30s
-      RuntimeKeepFree   =200M
-      RuntimeMaxUse     =100M
-      Seal              =yes
-      Storage           =persistent
-      SystemKeepFree    =1G
-      SystemMaxFiles    =100
-      SystemMaxUse      =500M
+      Audit             =yes          # Вмикаємо аудит системи
+      Compress          =yes          # Вмикаємо стиснення лог-файлів
+      ForwardToSyslog   =yes          # Пересилаємо логи до syslog
+      MaxFileSec        =1week        # Максимальний розмір файлу журналу - 1 тиждень
+      MaxLevelStore     =warning      # Максимальний рівень повідомлень, що зберігаються локально
+      MaxLevelSyslog    =err          # Максимальний рівень повідомлень, що відправляються до syslog
+      MaxRetentionSec   =1week        # Максимальний час зберігання логів - 1 тиждень
+      RateLimitBurst    =100          # Кількість повідомлень перед застосуванням обмеження швидкості
+      RateLimitInterval =30s          # Інтервал часу для обмеження швидкості
+      RuntimeKeepFree   =200M         # Мінімальний вільний простір для runtime логів
+      RuntimeMaxUse     =100M         # Максимальний розмір runtime логів
+      Seal              =yes          # Захист цілісності логів
+      Storage           =persistent   # Зберігання логів на постійному носії
+      SystemKeepFree    =1G           # Мінімальний вільний простір для системних логів
+      SystemMaxFiles    =100          # Максимальна кількість системних лог-файлів
+      SystemMaxUse      =500M         # Максимальний розмір системних логів
     '';
 
+
     # SSH
+    # Налаштування SSH сервера.
+    # Вимкнено за замовчуванням для підвищення безпеки.
+    # Використовується тільки ключова аутентифікація,
+    # обмежена кількість спроб авторизації,
+    # заборонено використання паролів та root-логіну.
     openssh = {
-      enable = false;
+      enable = false; # SSH вимкнено за замовчуванням
       settings = {
-        AllowAgentForwarding          = false;
-        AllowStreamLocalForwarding    = false;
-        AllowTcpForwarding            = false;
-        AuthenticationMethods         = "publickey";
-        KbdInteractiveAuthentication  = false;
-        LoginGraceTime                = "30s";
-        MaxAuthTries                  = 3;
-        PasswordAuthentication        = false;
-        PermitRootLogin               = "no";
-        X11Forwarding                 = false;
+        AllowAgentForwarding          = false;        # Забороняємо переадресацію агентів
+        AllowStreamLocalForwarding    = false;        # Забороняємо локальну переадресацію потоків
+        AllowTcpForwarding            = false;        # Забороняємо TCP переадресацію
+        AuthenticationMethods         = "publickey";  # Дозволяємо тільки ключову аутентифікацію
+        KbdInteractiveAuthentication  = false;        # Забороняємо інтерактивну аутентифікацію
+        LoginGraceTime                = "30s";        # Час на авторизацію - 30 секунд
+        MaxAuthTries                  = 3;            # Максимальна кількість спроб авторизації - 3
+        PasswordAuthentication        = false;        # Забороняємо аутентифікацію за допомогою паролів
+        PermitRootLogin               = "no";         # Забороняємо root-логін
+        X11Forwarding                 = false;        # Забороняємо X11 переадресацію
       };
       
-      authorizedKeys  = [ "ssh-ed25519 AAAAC3..." ];
-      port            = 2222;
+      authorizedKeys  = [ "..." ];  # Список авторизованих ключів
+      port            = 29;         # Порт для SSH з'єднання
     };
 
+
     # ПОВЕДІНКА ПРИ ВИМКНЕННІ
+    # Налаштування поведінки системи при вимкненні.
+    # Всі дії при вимкненні ігноруються.
     logind = {
-      hibernateKey            = "ignore";
-      lidSwitch               = "ignore";
-      lidSwitchDocked         = "ignore";
-      lidSwitchExternalPower  = "ignore";
-      powerKey                = "ignore";
-      rebootKey               = "ignore";
-      suspendKey              = "ignore";
+      hibernateKey            = "ignore";   # Ігноруємо кнопку гібернації
+      lidSwitch               = "ignore";   # Ігноруємо закриття кришки ноутбука
+      lidSwitchDocked         = "ignore";   # Ігноруємо закриття кришки ноутбука в док-станції
+      lidSwitchExternalPower  = "ignore";   # Ігноруємо закриття кришки ноутбука при підключенні до зовнішнього живлення
+      powerKey                = "ignore";   # Ігноруємо кнопку живлення
+      rebootKey               = "ignore";   # Ігноруємо кнопку перезавантаження
+      suspendKey              = "ignore";   # Ігноруємо кнопку сну
     };
   };
 
 
-  # ШРИФТИ
+  # ШРИФТИ для системи.
+  # Використовуємо набір шрифтів з підтримкою лігатур та емоджі.
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
     nerd-fonts.fira-code
@@ -312,15 +331,18 @@
     ];
 
 
-  # АУДІО
-  security.rtkit.enable       = true;
-  hardware.pulseaudio.enable  = false;
+  # Налаштування АУДІО.
+  # Вмикаємо rtkit для реального часу та pipewire для обробки аудіо.
+  # PulseAudio вимкнено на користь Pipewire.
+  security.rtkit.enable       = true;   # Вмикаємо rtkit для реального часу
+  
+  hardware.pulseaudio.enable  = false;  # Вимкаємо PulseAudio
   services.pipewire = {
-    enable              = true;
-    alsa.enable         = true;
-    alsa.support32Bit   = true;
-    pulse.enable        = true;
-    wireplumber.enable  = true;
+    enable              = true;   # Вмикаємо Pipewire
+    alsa.enable         = true;   # Вмикаємо ALSA підтримку
+    alsa.support32Bit   = true;   # Вмикаємо 32-бітну підтримку ALSA
+    pulse.enable        = true;   # Вмикаємо PulseAudio емуляцію в Pipewire
+    wireplumber.enable  = true;   # Вмикаємо WirePlumber
   };
 
 
