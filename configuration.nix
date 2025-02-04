@@ -9,92 +9,102 @@
 
   # ЗАВАНТАЖУВАЧ
   boot = {
+    /* Налаштування завантажувача
+    systemd-boot як основний завантажувач */
     loader = {
       systemd-boot = {
-        enable              = true;
-        consoleMode         = "max";
-        configurationLimit  = 5;
-        editor              = false;
-        timeout             = 10;
+        enable              = true;  # Увімкнення systemd-boot
+        consoleMode         = "max"; # Максимальна роздільна здатність консолі
+        configurationLimit  = 5;     # Зберігати останні 5 конфігурацій завантаження
+        editor              = false; # Вимкнення редактора в меню завантаження
+        timeout             = 10;    # Час очікування вибору в меню завантаження (10 секунд)
       };
       
       efi = {
-        canTouchEfiVariables  = false;
-        efiSysMountPoint      = "/boot";
+        canTouchEfiVariables  = false;   # Не дозволяти systemd-boot змінювати змінні EFI
+        efiSysMountPoint      = "/boot"; # Точка монтування EFI розділу
       };
     };
 
+    # Налаштування initrd (initial RAM disk)
     initrd = {
-      luks.devices."luks-911765a7-6ecb-4c99-88ef-b44c26fd3583".device = "/dev/disk/by-uuid/911765a7-6ecb-4c99-88ef-b44c26fd3583";
-      systemd.enable = true;
+      # Налаштування LUKS шифрування
+      luks.devices."luks-911765a7-6ecb-4c99-88ef-b44c26fd3583".device = "/dev/disk/by-uuid/911765a7-6ecb-4c99-88ef-b44c26fd3583"; # Пристрій з LUKS шифруванням
+      systemd.enable = true; # Увімкнення systemd в initrd
     };
 
-    /* Використання захищеного ядра */
+    # Використання захищеного ядра (hardened kernel) для підвищення безпеки
     kernelPackages = pkgs.linuxPackages_hardened;
 
-    /* Завантажувальні модулі ядра */
+    # Завантажувальні модулі ядра, необхідні для віртуалізації (kvm-amd)
     kernelModules = [ "kvm-amd" ];
+
+    # Параметри ядра для безпеки та продуктивності
     kernelParams = [
-      "amd_iommu                  =pt"
-      "debugfs                    =off"
-      "init_on_alloc              =1"
-      "init_on_free               =1"
-      "kernel.printk              =\"3 4 1 3\""
-      "l1tf                       =full,force"
-      "lockdown                   =confidentiality:integrity"
-      "mds                        =full,nosmt"
-      "module.sig_enforce         =1"
-      "page_alloc.shuffle         =1"
-      "page_poison                =1"
-      "pti                        =on"
-      "randomize_kstack_offset    =on"
-      "slab_nomerge"
-      "slub_debug                 =FZP"
-      "spec_store_bypass_disable  =on"
-      "spectre_v2                 =on"
-      "stf_barrier                =on"
-      "usercopy                   =strict"
-      "vsyscall                   =none"
+      "amd_iommu                  =pt"  # AMD IOMMU Passthrough
+      "debugfs                    =off" # Вимкнення debugfs для безпеки
+      "init_on_alloc              =1"   # Ініціалізація пам'яті при виділенні
+      "init_on_free               =1"   # Ініціалізація пам'яті при звільненні
+      "kernel.printk              =\"3 4 1 3\"" # Налаштування рівня виводу ядра
+      "l1tf                       =full,force"  # Захист від L1 Terminal Fault
+      "lockdown                   =confidentiality:integrity" # Режим блокування ядра
+      "mds                        =full,nosmt"                # Захист від Microarchitectural Data Sampling
+      "module.sig_enforce         =1"   # Вимагати підписи модулів ядра
+      "page_alloc.shuffle         =1"   # Рандомізація виділення сторінок пам'яті
+      "page_poison                =1"   # Заповнення звільненої пам'яті значеннями для запобігання витоку даних
+      "pti                        =on"  # Page Table Isolation
+      "randomize_kstack_offset    =on"  # Рандомізація зміщення стеку ядра
+      "slab_nomerge"                    # Вимкнення об'єднання slab-ів
+      "slub_debug                 =FZP" # Налагодження SLAB allocator
+      "spec_store_bypass_disable  =on"  # Захист від Spectre store bypass
+      "spectre_v2                 =on"  # Захист від Spectre v2
+      "stf_barrier                =on"  # Single Thread Fault barrier
+      "usercopy                   =strict" # Суворі перевірки копіювання даних з/в user space
+      "vsyscall                   =none"   # Вимкнення vsyscall
     ];
 
     /* Підтримувані файлові системи */
     supportedFilesystems =
-      [ "btrfs" "reiserfs" "vfat" "ext4" "f2fs" "xfs" "ntfs" "cifs" ] ++
-      lib.optional (lib.meta.availableOn pkgs.stdenv.hostPlatform config.boot.zfs.package) "zfs";
+      [ "btrfs" "vfat" "ext4" "xfs" "ntfs" ] ++
+      lib.optional (lib.meta.availableOn pkgs.stdenv.hostPlatform config.boot.zfs.package) "zfs"; # Додати ZFS, якщо доступний
 
-    /* Безпекові налаштування парметрів ядра */
+    /* Безпекові налаштування парметрів ядра sysctl*/
     kernel.sysctl = {
-      "kernel.dmesg_restrict"                       = 1;
-      "kernel.ftrace_enabled"                       = false;
-      "kernel.kptr_restrict"                        = 2;
-      "kernel.perf_event_paranoid"                  = 3;
-      "kernel.randomize_va_space"                   = 2;
-      "kernel.unprivileged_bpf_disabled"            = 1;
-      "kernel.yama.ptrace_scope"                    = 2;
-      "net.core.bpf_jit_enable"                     = false;
-      "net.core.bpf_jit_harden"                     = 2;
-      "net.ipv4.conf.all.accept_redirects"          = 0;
-      "net.ipv4.conf.all.log_martians"              = 1;
-      "net.ipv4.conf.all.rp_filter"                 = 1;
-      "net.ipv4.conf.all.secure_redirects"          = false;
-      "net.ipv4.conf.all.send_redirects"            = 0;
-      "net.ipv4.conf.default.accept_redirects"      = 0;
+      "kernel.dmesg_restrict"                       = 1; # Обмеження доступу до dmesg
+      "kernel.ftrace_enabled"                       = false; # Вимкнення ftrace
+      "kernel.kptr_restrict"                        = 2; # Обмеження доступу до адрес ядра
+      "kernel.perf_event_paranoid"                  = 3; # Параноїдальний режим для perf events
+      "kernel.randomize_va_space"                   = 2; # Рандомізація адресного простору
+      "kernel.unprivileged_bpf_disabled"            = 1; # Вимкнення BPF для непривілейованих користувачів
+      "kernel.yama.ptrace_scope"                    = 2; # Обмеження ptrace
+      "net.core.bpf_jit_enable"                     = false; # Вимкнення JIT для BPF
+      "net.core.bpf_jit_harden"                     = 2; # Зміцнення JIT для BPF
+      "net.ipv4.conf.all.accept_redirects"          = 0; # Не приймати ICMP redirects
+      "net.ipv4.conf.all.log_martians"              = 1; # Логувати "марсіанські" пакети
+      "net.ipv4.conf.all.rp_filter"                 = 1; # Reverse path filtering
+      "net.ipv4.conf.all.secure_redirects"          = false; # Не приймати redirects від будь-кого
+      "net.ipv4.conf.all.send_redirects"            = 0; # Не надсилати redirects
+      "net.ipv4.conf.default.accept_redirects"      = 0; #  (те саме, що і вище, але для інтерфейсу за замовчуванням)
       "net.ipv4.conf.default.log_martians"          = 1;
       "net.ipv4.conf.default.rp_filter"             = 1;
       "net.ipv4.conf.default.secure_redirects"      = false;
       "net.ipv4.conf.default.send_redirects"        = 0;
-      "net.ipv4.icmp_echo_ignore_broadcasts"        = 1;
-      "net.ipv4.icmp_ignore_bogus_error_responses"  = 1;
-      "net.ipv4.tcp_syncookies"                     = 1;
-      "net.ipv6.conf.all.accept_redirects"          = false;
-      "net.ipv6.conf.default.accept_redirects"      = false;
-      "vm.unprivileged_userfaultfd"                 = 0;
+      "net.ipv4.icmp_echo_ignore_broadcasts"        = 1; # Ігнорувати broadcast ping
+      "net.ipv4.icmp_ignore_bogus_error_responses"  = 1; # Ігнорувати неправильні ICMP повідомлення про помилки
+      "net.ipv4.tcp_syncookies"                     = 1; # Увімкнення SYN cookies для захисту від SYN flood
+      "net.ipv6.conf.all.accept_redirects"          = false; # Не приймати IPv6 redirects
+      "net.ipv6.conf.default.accept_redirects"      = false; # (те саме для IPv6 інтерфейсу за замовчуванням)
+      "vm.unprivileged_userfaultfd"                 = 0; # Вимкнення userfaultfd для непривілейованих користувачів
     };
 
     /* Бан-лист небезпечних або застрілих модулів ядра та файлових систем */
     blacklistedKernelModules = [
+      # Застарілі мережеві протоколи
       "ax25" "netrom" "rose"
-      "adfs" "affs" "befs" "bfs" "cramfs" "efs" "erofs" "exofs" "f2fs" "freevxfs" "hfs" "hpfs" "jfs" "minix" "nilfs2" "omfs" "qnx4" "qnx6" "sysv" "ufs"
+      
+      # Застарілі або потенційно небезпечні файлові системи
+      "adfs" "affs" "befs" "bfs" "cifs" "cramfs" "reiserfs" "efs" "erofs" "exofs" "f2fs" 
+      "freevxfs" "hfs" "hpfs" "jfs" "minix" "nilfs2" "omfs" "qnx4" "qnx6" "sysv" "ufs" 
     ];
   };
 
@@ -130,10 +140,11 @@
       allowPing               = false;
       logIPv6Drops            = true;
       extraCommands = ''
-        iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
-        ip6tables -A INPUT -p icmpv6 --icmpv6-type echo-request -j DROP
+        iptables -A INPUT -p tcp --syn -m limit --limit 5/s --limit-burst 10 -j ACCEPT
+        iptables -A INPUT -p tcp --syn -j DROP
         iptables -A INPUT -m conntrack --ctstate INVALID -j DROP
         iptables -A INPUT -p tcp ! --syn -m conntrack --ctstate NEW -j DROP
+        
         iptables -A INPUT -p tcp --tcp-flags ALL NONE -j DROP
         iptables -A INPUT -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
         iptables -A INPUT -p tcp --tcp-flags SYN,RST SYN,RST -j DROP
@@ -148,10 +159,14 @@
         iptables -A INPUT -p tcp --tcp-flags ALL URG,PSH,FIN -j DROP
         iptables -A INPUT -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
         iptables -A INPUT -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
+
         iptables -A INPUT -p udp --dport 123 -s 192.168.1.0/24 -j ACCEPT
+        iptables -A INPUT -p udp --dport 5353 -j DROP
         iptables -A INPUT -p udp --dport 5353 -s 192.168.1.0/24 -j ACCEPT
         iptables -A INPUT -p udp --dport 123 -j DROP
-        iptables -A INPUT -p udp --dport 5353 -j DROP
+
+        iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
+        ip6tables -A INPUT -p icmpv6 --icmpv6-type echo-request -j DROP
       '';
       
       extraStopCommands = ''
