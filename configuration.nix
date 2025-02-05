@@ -33,34 +33,34 @@
       systemd.enable = true; # Увімкнення systemd в initrd
     };
 
-    # Використання hardened kernel для підвищення безпеки
-    kernelPackages = pkgs.linuxPackages_hardened;
+    # Повернення до latest kernel в заміну hardened kernel через недоцільність та пряме налаштування ядра через завантажувальні модулі 
+    kernelPackages = pkgs.linuxPackages_latest;
 
     # Завантажувальні модулі ядра, необхідні для віртуалізації kvm-amd
     kernelModules = [ "kvm-amd" ];
 
     # Параметри ядра для безпеки та продуктивності
     kernelParams = [
-      "amd_iommu                  =pt"    # AMD IOMMU Passthrough
-      "debugfs                    =off"   # Вимкнення debugfs для безпеки
-      "init_on_alloc              =1"     # Ініціалізація пам'яті при виділенні
-      "init_on_free               =1"     # Ініціалізація пам'яті при звільненні
-      "kernel.printk              =\"3 4 1 3\""   # Налаштування рівня виводу ядра
-      "l1tf                       =full,force"    # Захист від L1 Terminal Fault
-      "lockdown                   =confidentiality:integrity"   # Режим блокування ядра
-      "mds                        =full,nosmt"                  # Захист від Microarchitectural Data Sampling
-      "module.sig_enforce         =1"     # Вимагати підписи модулів ядра
-      "page_alloc.shuffle         =1"     # Рандомізація виділення сторінок пам'яті
-      "page_poison                =1"     # Заповнення звільненої пам'яті значеннями для запобігання витоку даних
-      "pti                        =on"    # Page Table Isolation
-      "randomize_kstack_offset    =on"    # Рандомізація зміщення стеку ядра
-      "slab_nomerge"                      # Вимкнення об'єднання slab-ів
-      "slub_debug                 =FZP"   # Налагодження SLAB allocator
-      "spec_store_bypass_disable  =on"    # Захист від Spectre store bypass
-      "spectre_v2                 =on"    # Захист від Spectre v2
-      "stf_barrier                =on"    # Single Thread Fault barrier
-      "usercopy                   =strict"  # Суворі перевірки копіювання даних з/в user space
-      "vsyscall                   =none"    # Вимкнення vsyscall
+      "amd_iommu                  =pt"                         # AMD IOMMU Passthrough
+      "debugfs                    =off"                        # Вимкнення debugfs для безпеки
+      "init_on_alloc              =1"                          # Ініціалізація пам'яті при виділенні
+      "init_on_free               =1"                          # Ініціалізація пам'яті при звільненні
+      "kernel.printk              =\"3 4 1 3\""                # Налаштування рівня виводу ядра
+      "l1tf                       =full,force"                 # Захист від L1 Terminal Fault
+      "lockdown                   =confidentiality:integrity"  # Режим блокування ядра
+      "mds                        =full,nosmt"                 # Захист від Microarchitectural Data Sampling
+      "module.sig_enforce         =1"                          # Вимагати підписи модулів ядра
+      "page_alloc.shuffle         =1"                          # Рандомізація виділення сторінок пам'яті
+      "page_poison                =1"                          # Заповнення звільненої пам'яті значеннями для запобігання витоку даних
+      "pti                        =on"                         # Page Table Isolation
+      "randomize_kstack_offset    =on"                         # Рандомізація зміщення стеку ядра
+      "slab_nomerge"                                           # Вимкнення об'єднання slab-ів
+      "slub_debug                 =FZP"                        # Налагодження SLAB allocator
+      "spec_store_bypass_disable  =on"                         # Захист від Spectre store bypass
+      "spectre_v2                 =on"                         # Захист від Spectre v2
+      "stf_barrier                =on"                         # Single Thread Fault barrier
+      "usercopy                   =strict"                     # Суворі перевірки копіювання даних з/в user space
+      "vsyscall                   =none"                       # Вимкнення vsyscall
     ];
 
     /* Підтримувані файлові системи */
@@ -70,31 +70,35 @@
 
     /* Безпекові налаштування парметрів ядра sysctl*/
     kernel.sysctl = {
+      "dev.tty.ldisc_autoload"                      = 0;      # Вимкнення автоматичного завантаження лінійних дисциплін для терміналів. Це покращує безпеку, запобігаючи завантаженню шкідливих лінійних дисциплін.
       "kernel.dmesg_restrict"                       = 1;      # Обмеження доступу до dmesg
-      "kernel.ftrace_enabled"                       = false;  # Вимкнення ftrace
-      "kernel.kptr_restrict"                        = 2;      # Обмеження доступу до адрес ядра
-      "kernel.perf_event_paranoid"                  = 3;      # Параноїдальний режим для perf events
-      "kernel.randomize_va_space"                   = 2;      # Рандомізація адресного простору
-      "kernel.unprivileged_bpf_disabled"            = 1;      # Вимкнення BPF для непривілейованих користувачів
-      "kernel.yama.ptrace_scope"                    = 2;      # Обмеження ptrace
-      "net.core.bpf_jit_enable"                     = false;  # Вимкнення JIT для BPF
-      "net.core.bpf_jit_harden"                     = 2;      # Зміцнення JIT для BPF
-      "net.ipv4.conf.all.accept_redirects"          = 0;      # Не приймати ICMP redirects
-      "net.ipv4.conf.all.log_martians"              = 1;      # Логувати "марсіанські" пакети
-      "net.ipv4.conf.all.rp_filter"                 = 1;      # Reverse path filtering
-      "net.ipv4.conf.all.secure_redirects"          = false;  # Не приймати redirects від будь-кого
-      "net.ipv4.conf.all.send_redirects"            = 0;      # Не надсилати redirects
-      "net.ipv4.conf.default.accept_redirects"      = 0;      # те саме, що і вище, але для інтерфейсу за замовчуванням
-      "net.ipv4.conf.default.log_martians"          = 1;
-      "net.ipv4.conf.default.rp_filter"             = 1;
-      "net.ipv4.conf.default.secure_redirects"      = false;
-      "net.ipv4.conf.default.send_redirects"        = 0;
+      "kernel.ftrace_enabled"                       = false;  # Вимкнення ftrace для покращення безпеки та продуктивності. ftrace - це інструмент трасування ядра, який може бути використаний для атак.
+      "kernel.kptr_restrict"                        = 2;      # Обмеження доступу до адрес ядра. Рівень 2 забезпечує максимальний захист.
+      "kernel.perf_event_paranoid"                  = 3;      # Параноїдальний режим для perf events. Це запобігає використанню perf events для атак.
+      "kernel.randomize_va_space"                   = 2;      # Рандомізація адресного простору. Рівень 2 забезпечує більш сильну рандомізацію.
+      "kernel.sysrq"                                = 4;      # Обмеження можливостей магічної клавіші SysRq. Рівень 4 дозволяє лише деякі функції.
+      "kernel.unprivileged_bpf_disabled"            = 1;      # Вимкнення BPF для непривілейованих користувачів. Це запобігає використанню BPF для атак.
+      "kernel.yama.ptrace_scope"                    = 2;      # Обмеження ptrace. Рівень 2 дозволяє ptrace тільки для процесів з тим самим UID.
+      "net.core.bpf_jit_enable"                     = false;  # Вимкнення JIT для BPF. Це покращує безпеку, запобігаючи використанню JIT для атак.
+      "net.core.bpf_jit_harden"                     = 2;      # Зміцнення JIT для BPF. Рівень 2 забезпечує більш сильне зміцнення.
+      "net.ipv4.conf.all.accept_redirects"          = false;  # Не приймати ICMP redirects. Це запобігає атакам маршрутизації.
+      "net.ipv4.conf.all.log_martians"              = true;   # Логувати "марсіанські" пакети. Це допомагає виявити атаки.
+      "net.ipv4.conf.all.rp_filter"                 = 1;      # Reverse path filtering. Це допомагає запобігти атакам підробки IP-адрес.
+      "net.ipv4.conf.all.secure_redirects"          = false;  # Не приймати redirects від будь-кого. Це запобігає атакам маршрутизації.
+      "net.ipv4.conf.all.send_redirects"            = false;  # Не надсилати redirects. Це запобігає атакам маршрутизації.
+      "net.ipv4.conf.default.accept_redirects"      = false;  # accept_redirects, але для інтерфейсу за замовчуванням
+      "net.ipv4.conf.default.log_martians"          = true;   # log_martians, але для інтерфейсу за замовчуванням
+      "net.ipv4.conf.default.rp_filter"             = 1;      # rp_filter, але для інтерфейсу за замовчуванням
+      "net.ipv4.conf.default.secure_redirects"      = false;  # secure_redirects, але для інтерфейсу за замовчуванням
+      "net.ipv4.conf.default.send_redirects"        = false;  # send_redirects, але для інтерфейсу за замовчуванням
+      "net.ipv4.icmp_echo_ignore_all"               = 1;      # Ігнорувати всі ICMP echo запити (ping). Це покращує безпеку, запобігаючи DoS атакам.
       "net.ipv4.icmp_echo_ignore_broadcasts"        = 1;      # Ігнорувати broadcast ping
-      "net.ipv4.icmp_ignore_bogus_error_responses"  = 1;      # Ігнорувати неправильні ICMP повідомлення про помилки
+      "net.ipv4.icmp_ignore_bogus_error_responses"  = 1;      # Ігнорувати неправильні ICMP повідомлення про помилки. Це допомагає запобігти атакам.
+      "net.ipv4.tcp_rfc1337"                        = 1;      # Вмикає захист від TCP атак, описаних в RFC 1337.
       "net.ipv4.tcp_syncookies"                     = 1;      # Увімкнення SYN cookies для захисту від SYN flood
-      "net.ipv6.conf.all.accept_redirects"          = false;  # Не приймати IPv6 redirects
+      "net.ipv6.conf.all.accept_redirects"          = false;  # Не приймати IPv6 redirects. Це запобігає атакам маршрутизації.
       "net.ipv6.conf.default.accept_redirects"      = false;  # те саме для IPv6 інтерфейсу за замовчуванням
-      "vm.unprivileged_userfaultfd"                 = 0;      # Вимкнення userfaultfd для непривілейованих користувачів
+      "vm.unprivileged_userfaultfd"                 = 0;      # Вимкнення userfaultfd для непривілейованих користувачів. Це покращує безпеку, запобігаючи використанню userfaultfd для атак.
     };
 
     /* Бан-лист небезпечних або застрілих модулів ядра та файлових систем */
@@ -103,8 +107,14 @@
       "ax25" "netrom" "rose"
       
       # Застарілі або потенційно небезпечні файлові системи
-      "adfs" "affs" "befs" "bfs" "cifs" "cramfs" "reiserfs" "efs" "erofs" "exofs" "f2fs" 
-      "freevxfs" "hfs" "hpfs" "jfs" "minix" "nilfs2" "omfs" "qnx4" "qnx6" "sysv" "ufs" 
+      "adfs"    "affs"      "befs"       "bfs" 
+      "cifs"    "cramfs"    "efs"        "erofs" 
+      "exofs"   "f2fs"      "freevxfs"   "gfs2" 
+      "hfs"     "hfsplus"   "hpfs"       "jffs2" 
+      "jfs"     "ksmbd"     "minix"      "nilfs2" 
+      "nfs"     "nfsv3"     "nfsv4"      "omfs" 
+      "qnx4"    "qnx6"      "reiserfs"   "squashfs" 
+      "sysv"    "udf"       "ufs"        "vivid"
     ];
   };
 
@@ -333,10 +343,8 @@
 
   # Налаштування АУДІО.
   # Вмикаємо rtkit для реального часу та pipewire для обробки аудіо.
-  # PulseAudio вимкнено на користь Pipewire.
   security.rtkit.enable       = true;   # Вмикаємо rtkit для реального часу
-  
-  hardware.pulseaudio.enable  = false;  # Вимкаємо PulseAudio
+  hardware.pulseaudio.enable  = false;  # Вимикаємо PulseAudio на користь Pipewire.
   services.pipewire = {
     enable              = true;   # Вмикаємо Pipewire
     alsa.enable         = true;   # Вмикаємо ALSA підтримку
@@ -348,7 +356,6 @@
 
   # КОРИСТУВАЧІ
   users.mutableUsers = false;
-
   users.users.oleksandr = {
     isNormalUser    = true;
     description     = "oleksandr";
