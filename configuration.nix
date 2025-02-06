@@ -7,8 +7,10 @@
     ];
 
 
+
   # ЗАВАНТАЖУВАЧ
   boot = {
+
     /* Налаштування завантажувача
     systemd-boot як основний завантажувач */
     loader = {
@@ -33,13 +35,13 @@
       systemd.enable = true; # Увімкнення systemd в initrd
     };
 
-    # Повернення до latest kernel в заміну hardened kernel через недоцільність та пряме налаштування ядра через завантажувальні модулі 
+    # Повернення до latest kernel в заміну hardened kernel через недоцільність та пряме налаштування ядра через параметри ядра та sysctl 
     kernelPackages = pkgs.linuxPackages_latest;
 
     # Завантажувальні модулі ядра, необхідні для віртуалізації kvm-amd
     kernelModules = [ "kvm-amd" ];
 
-    # Параметри ядра для безпеки та продуктивності
+    # Параметри ядра для безпеки
     kernelParams = [
       "amd_iommu                  =pt"                         # AMD IOMMU Passthrough
       "debugfs                    =off"                        # Вимкнення debugfs для безпеки
@@ -101,7 +103,7 @@
       "vm.unprivileged_userfaultfd"                 = 0;      # Вимкнення userfaultfd для непривілейованих користувачів. Це покращує безпеку, запобігаючи використанню userfaultfd для атак.
     };
 
-    /* Бан-лист небезпечних або застрілих модулів ядра та файлових систем */
+    /* Бан-лист небезпечних або застрілих модулів ядра */
     blacklistedKernelModules = [
       # Застарілі мережеві протоколи
       "ax25" "netrom" "rose"
@@ -116,14 +118,18 @@
       "qnx4"    "qnx6"      "reiserfs"   "squashfs" 
       "sysv"    "udf"       "ufs"        "vivid"
     ];
+
+    cleanTmpDir = true;
+    tmpOnTmpfs = true;
   };
 
 
   # МЕРЕЖА
   networking = {
-    hostName = "nixos"; # Ім'я хоста
-    enableIPv6 = true;  # Увімкнення IPv6
-    tempAddresses = "disabled"; # Вимкнення тимчасових адрес
+    hostName = "Rampart-Nix";     # Ім'я хоста
+    enableIPv6 = true;            # Увімкнення IPv6
+    tempAddresses = "disabled";   # Вимкнення тимчасових адрес
+    networkmanager.enable = true; # Використання NetworkManager
 
     # DNS-сервери
     nameservers = [
@@ -131,7 +137,6 @@
       "8.8.8.8" # Google Public DNS
       "9.9.9.9" # Quad9
     ];
-    networkmanager.enable = true; # Використання NetworkManager
 
 
     #БРАНДМАУЕР:
@@ -222,6 +227,7 @@
   };
 
 
+
   # ЛОКАЛІЗАЦІЯ
   # Налаштування часового поясу та годинника
   time = {
@@ -237,7 +243,13 @@
 
   # Налаштування макету клавіатури консолі
   # Використовуємо американську розкладку клавіатури.
-  console.keyMap = "us";
+  console = { 
+    keyMap = "us";
+    earlySetup = true;
+    font = "sun12x22";
+    colors = theme.colors16;
+  };
+
 
 
   # СЕРВІСИ
@@ -249,10 +261,18 @@
       enable      = true;
       layout      = "us,ua";
       xkbOptions  = "grp:alt_shift_toggle";
+    
+      # Вмикаємо libinput для керування пристроями вводу.
+      libinput = {
+        enable = true;  # Вмикаємо підтримку libinput для всіх пристроїв вводу
+        
+        # Налаштування тачпаду
+        touchpad = {
+          tappingDragLock = false;  # Вимкнено функцію блокування перетягування при тапінгу. Це зменшує ризик випадкових дій під час роботи.
+          naturalScrolling = true;  # Вмикаємо "природне" прокручування. Збільшує інтуїтивність використання для більшості користувачів.
+        };
+      };
     };
-
-    # Вмикаємо libinput для керування пристроями вводу.
-    libinput.enable = true;
 
     # Використовуємо sddm як дисплей менеджер та Plasma 5 як робоче середовище.
     displayManager = {
@@ -327,9 +347,12 @@
   };
 
 
-  # ШРИФТИ для системи.
+
+  # ШРИФТИ.
   # Використовуємо набір шрифтів з підтримкою лігатур та емоджі.
-  fonts.packages = with pkgs; [
+  fonts = {
+    fontDir.enable = true;
+    fonts = with pkgs; [
     nerd-fonts.jetbrains-mono
     nerd-fonts.fira-code
     nerd-fonts.fira-mono
@@ -339,6 +362,8 @@
     roboto
     vistafonts
     ];
+  };
+
 
 
   # Налаштування АУДІО.
@@ -352,6 +377,7 @@
     pulse.enable        = true;   # Вмикаємо PulseAudio емуляцію в Pipewire
     wireplumber.enable  = true;   # Вмикаємо WirePlumber
   };
+
 
 
   # КОРИСТУВАЧІ
@@ -380,6 +406,7 @@
       telegram-desktop
     ];
   };
+
 
 
   # БЕЗПЕКА
@@ -459,6 +486,7 @@
   environment.variables.SCUDO_OPTIONS   = "ZeroContents=1"; # Налаштування scudo для ініціалізації пам'яті нулями
 
 
+
   # NIX
   nix.settings = {
     /* Включення експериментальних функцій:
@@ -483,6 +511,7 @@
   /* Дозвіл на використання пропрієтарного програмного забезпечення
      Необхідно для деяких програм, які не мають відкритих альтернатив */
   nixpkgs.config.allowUnfree = true;
+
 
 
   # ПАКЕТИ
@@ -517,6 +546,7 @@
     /* Відео */
     obs-studio
   ];
+
 
 
   # ВІРТУАЛІЗАЦІЯ
@@ -563,6 +593,7 @@
       forwardMode   = "nat";    # Використання NAT для виходу в інтернет
     };
   };
+
 
 
   system.stateVersion = "24.11";
