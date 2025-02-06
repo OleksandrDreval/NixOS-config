@@ -378,7 +378,6 @@
     # Пакети, які будуть встановлені лише для цього користувача
     packages = with pkgs; [
       telegram-desktop
-      discord
     ];
   };
 
@@ -394,10 +393,10 @@
       enable          = true;  # Вмикаємо sudo
       execWheelOnly   = true;  # Дозволяємо виконання sudo лише користувачам з групи wheel
       extraConfig = ''
-        Defaults insults  # Додаємо образливі повідомлення при невдалій спробі sudo
+        Defaults insults                 # Додаємо образливі повідомлення при невдалій спробі sudo
         Defaults passwd_timeout     =25  # Час очікування введення пароля (25 секунд)
         Defaults timestamp_timeout  =15  # Час дії кешування пароля (15 хвилин)
-        Defaults use_pty            # Використання PTY для всіх команд sudo
+        Defaults use_pty                 # Використання PTY для всіх команд sudo
       '';
     };
 
@@ -495,7 +494,6 @@
 
     /* Інтернет */
     firefox
-    chromium
 
     /* Інструменти */
     wget
