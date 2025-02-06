@@ -384,68 +384,70 @@
 
 
   # БЕЗПЕКА
+  # Хешований root пароль 
   users.users.root.hashedPassword = "  ";
 
   security = {
 
-    /* sudo */
+    /* Налаштування sudo */
     sudo = {
-      enable          = true;
-      execWheelOnly   = true;
+      enable          = true;  # Вмикаємо sudo
+      execWheelOnly   = true;  # Дозволяємо виконання sudo лише користувачам з групи wheel
       extraConfig = ''
-        Defaults insults
-        Defaults passwd_timeout     =25
-        Defaults timestamp_timeout  =15
-        Defaults use_pty
+        Defaults insults  # Додаємо образливі повідомлення при невдалій спробі sudo
+        Defaults passwd_timeout     =25  # Час очікування введення пароля (25 секунд)
+        Defaults timestamp_timeout  =15  # Час дії кешування пароля (15 хвилин)
+        Defaults use_pty            # Використання PTY для всіх команд sudo
       '';
     };
 
-    /* Аудит */
+    /* Налаштування аудиту системи */
     auditd.enable = true;
     audit = {
       enable = true;
       rules = [
-        "-a always,exit -F arch=b64 -S execve -k process_execution"
-        "-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EACCES -k access"
-        "-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EPERM -k access"
+        "-a always,exit -F arch=b64 -S execve -k process_execution"                                                      # Логування виконання процесів
+        "-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EACCES -k access" # Логування спроб доступу до файлів з помилками EACCES
+        "-a always,exit -F arch=b64 -S open,truncate,ftruncate,creat,openat,open_by_handle_at -F exit=-EPERM -k access"  # Логування спроб доступу до файлів з помилками EPERM
       ];
     };
 
-    /* Безпека та цілісність ядра */
-    allowSimultaneousMultithreading   = false;
-    forcePageTableIsolation           = true;
-    hideProcessesInformation          = true;
-    lockKernelModules                 = true;
-    protectKernelImage                = true;
-    restrictSUIDSGID                  = true;
-    unprivilegedUsernsClone           = false;
-    virtualisation.flushL1DataCache   = "always";
+    /* Налаштування безпеки ядра */
+    allowSimultaneousMultithreading   = false;    # Вимкнення SMT для запобігання атак типу Spectre
+    forcePageTableIsolation           = true;     # Увімкнення PTI для захисту від Meltdown
+    hideProcessesInformation          = true;     # Приховування інформації про процеси
+    lockKernelModules                 = true;     # Блокування завантаження нових модулів ядра
+    protectKernelImage                = true;     # Захист образу ядра
+    restrictSUIDSGID                  = true;     # Обмеження SUID/SGID бітів
+    unprivilegedUsernsClone           = false;    # Заборона створення просторів імен користувачів без привілеїв
+    virtualisation.flushL1DataCache   = "always"; # Очищення кешу L1 для запобігання атак типу L1TF
 
-    /* Pluggable Authentication Modules */
+    /* Налаштування PAM (Pluggable Authentication Modules) */
     pam = {
       services = {
         login = {
-          enableKrb5          = false;
-          allowNullPasswords  = false;
-          failDelay           = 4000000;
-          maxRetries          = 3;
-          unlockTime          = 600;
+          enableKrb5          = false;    # Вимкнення Kerberos для входу
+          allowNullPasswords  = false;    # Заборона пустих паролів
+          failDelay           = 4000000;  # Затримка після невдалої спроби входу (4 секунди)
+          maxRetries          = 3;        # Максимальна кількість спроб входу
+          unlockTime          = 600;      # Час блокування облікового запису після невдалих спроб (10 хвилин)
         };
         
-        sudo.enableKrb5 = false;
-        sshd.enableKrb5 = false;
+        sudo.enableKrb5 = false;  # Вимкнення Kerberos для sudo
+        sshd.enableKrb5 = false;  # Вимкнення Kerberos для SSH
       };
 
+      # Обмеження ресурсів для користувачів
       loginLimits = [
-        { domain = "*"; type = "hard"; item = "nofile"; value = "1024"; }
-        { domain = "*"; type = "hard"; item = "nproc"; value = "512"; }
+        { domain = "*"; type = "hard"; item = "nofile"; value = "1024"; }  # Максимум відкритих файлів
+        { domain = "*"; type = "hard"; item = "nproc"; value = "512"; }    # Максимум процесів
       ];
     };
 
-    /* Security-Enhanced Linux */
+    /* Налаштування SELinux */
     selinux = {
-      enable    = true;
-      enforce   = true;
+      enable    = true;  # Вмикаємо SELinux
+      enforce   = true;  # Увімкнення режиму застосування політик
     };
 
     /* apparmor = {
@@ -454,8 +456,8 @@
     }; */
   };
 
-  environment.memoryAllocator.provider  = "scudo";
-  environment.variables.SCUDO_OPTIONS   = "ZeroContents=1";
+  environment.memoryAllocator.provider  = "scudo";          # Використання scudo як аллокатора пам'яті для підвищення безпеки
+  environment.variables.SCUDO_OPTIONS   = "ZeroContents=1"; # Налаштування scudo для ініціалізації пам'яті нулями
 
 
   # NIX
