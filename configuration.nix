@@ -523,38 +523,46 @@
 
   # ВІРТУАЛІЗАЦІЯ
   virtualisation = {
+
+    /* Налаштування libvirt для керування віртуалізацією */
     libvirtd = {
-      enable        = true;
-      qemuPackage   = pkgs.qemu_kvm;
-      onBoot        = "ignore";
-      onShutdown    = "shutdown";
+      enable        = true;           # Увімкнення служби libvirt
+      qemuPackage   = pkgs.qemu_kvm;  # Використання KVM для апаратного прискорення
+      onBoot        = "ignore";       # Не запускати віртуальні машини автоматично при завантаженні
+      onShutdown    = "shutdown";     # Завершувати віртуальні машини при вимкненні системи
+      
       extraConfig = ''
-        security_default_confined   = 1
-        security_driver             = "selinux"
-        user                        = "@libvirt"
-        group                       = "@libvirt"
-        dynamic_ownership           = 1
-        remember_owner              = 1
-        cgroup_device_acl = [
+        security_default_confined   = 1           # Увімкнення захисту за замовчуванням
+        security_driver             = "selinux"   # Використання SELinux для захисту
+        user                        = "@libvirt"  # Користувач для запуску віртуальних машин
+        group                       = "@libvirt"  # Група для запуску віртуальних машин
+        dynamic_ownership           = 1           # Динамічне призначення власника файлів
+        remember_owner              = 1           # Запам'ятовування власника файлів
+
+        cgroup_device_acl = [                     # Дозволені пристрої для cgroup
           /dev/null /dev/full /dev/zero
           /dev/random /dev/urandom
           /dev/ptmx /dev/kvm
         ]
-        seccomp_sandbox     = 1
-        memory_backing_dir  = "/var/lib/libvirt/memory"
-        cgroup_controllers  = [ "cpu" "memory" "pids" ]
-        cgroup_device_acl   = []
+
+        seccomp_sandbox     = 1                          # Увімкнення захисту через seccomp
+        memory_backing_dir  = "/var/lib/libvirt/memory"  # Директорія для файлів підкачки
+        cgroup_controllers  = [ "cpu" "memory" "pids" ]  # Контролери ресурсів
+        cgroup_device_acl   = []                         # Додаткові дозволені пристрої
       '';
 
+      /* Дозволені мережеві мости для віртуальних машин */
       allowedBridges = [ "virbr0" "br0" ];
     };
 
+    /* Увімкнення перенаправлення USB через SPICE для віртуальних машин */
     spiceUSBRedirection.enable = true;
 
+    /* Налаштування мережі за замовчуванням для віртуальних машин */
     defaultNetwork = {
-      enable        = true;
-      name          = "virbr0";
-      forwardMode   = "nat";
+      enable        = true;     # Увімкнення мережі за замовчуванням
+      name          = "virbr0"; # Ім'я мережевого інтерфейсу
+      forwardMode   = "nat";    # Використання NAT для виходу в інтернет
     };
   };
 
