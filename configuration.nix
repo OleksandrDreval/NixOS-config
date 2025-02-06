@@ -10,7 +10,6 @@
 
   # ЗАВАНТАЖУВАЧ
   boot = {
-
     /* Налаштування завантажувача
     systemd-boot як основний завантажувач */
     loader = {
@@ -146,40 +145,37 @@
       # Дозволені TCP порти:
       allowedTCPPorts = [
         53    # DNS
+        67    # DHCP-сервер
+        68    # DHCP-клієнт
         80    # HTTP
         443   # HTTPS
-        8080  # Альтернативний HTTP
-        8443  # Альтернативний HTTPS
+        8080  # altHTTP
       ];
 
       # Дозволені UDP порти:
       allowedUDPPorts = [
-        53  # DNS
-        67  # DHCP-клієнт
-        68  # DHCP-сервер
+        53    # DNS
+        67    # DHCP-сервер
+        68    # DHCP-клієнт
+        80    # HTTP
+        443   # HTTPS
       ];
 
-      logRefusedConnections = true; # Логування відхилених з'єднань
-      allowPing = false;    # Заборона ping
-      logIPv6Drops = true;  # Логування відкинутих IPv6 пакетів
-      
 
-                      ####################################
-                      #             IPtables             #
-                      ####################################
+                            ####################################
+                            #             IPtables             #
+                            ####################################
       /*  Дозволити 5 SYN пакетів в секунду, з burst 10, для запобігання SYN flood
           Відкидати всі інші SYN пакети
           Відкидати невалідні пакети
-          Відкидати нові TCP пакети, які не є SYN  */
+          Відкидати нові TCP пакети, які не є SYN
 
-      /*  Блокування різних комбінацій TCP прапорів, захист від аномального трафіку  */
+          Блокування різних комбінацій TCP прапорів, захист від аномального трафіку
 
-      /*  Блокувати NTP ззовні
-          Дозволити NTP з локальної мережі
-          Блокувати mDNS запроси ззовні
-          Дозволити mDNS з локальної мережі  */
+          Блокувати NTP та mDNS запити ззовні
+          Дозволити NTP та mDNS з локальної мережі
 
-      /*  Блокування ICMP echo-request, ping  */
+          Блокування ICMP echo-request, ping  */
 
       extraCommands = ''
         iptables -A INPUT -p tcp --syn -m limit --limit 5/s --limit-burst 10 -j ACCEPT
@@ -219,10 +215,25 @@
 
       autoLoadConntrackHelpers = false; # Вимкнення автоматичного завантаження conntrack helpers
       checkReversePath = "strict";      # Строга перевірка зворотнього шляху
-      connectionTrackingModules = [ "ftp" "irc" "sane" "sip" "tftp" ];  # Модулі для відстеження з'єднань
-  
-      logReversePathDrops = true; # Логування відкинутих пакетів через зворотній шлях
-      logDenied = "all";          # Журналювання всіх відхилених з'єднань
+      # Модулі для відстеження з'єднань
+      connectionTrackingModules = [
+        "amanda"
+        "ftp" 
+        "h323"
+        "irc"
+        "netbios_sn"
+        "pptp"
+        "sane"
+        "sip"
+        "snmp"
+        "tftp"
+      ];
+
+      allowPing = false;            # Заборона ping
+      logRefusedConnections = true; # Логування відхилених з'єднань
+      logReversePathDrops = true;   # Логування відкинутих пакетів через зворотній шлях
+      logIPv6Drops = true;          # Логування відкинутих IPv6 пакетів
+      logDenied = "all";            # Журналювання всіх відхилених з'єднань
     };
   };
 
@@ -328,7 +339,7 @@
       };
       
       authorizedKeys  = [ "..." ];  # Список авторизованих ключів
-      port            = 29;         # Порт для SSH з'єднання
+      port            = 737;         # Порт для SSH з'єднання
     };
 
 
@@ -368,7 +379,7 @@
 
   # Налаштування АУДІО.
   # Вмикаємо rtkit для реального часу та pipewire для обробки аудіо.
-  security.rtkit.enable       = true;   # Вмикаємо rtkit для реального часу
+  security.rtkit.enable       = true;   # Вмикаємо rtkit для процесів у реальному часі
   hardware.pulseaudio.enable  = false;  # Вимикаємо PulseAudio на користь Pipewire.
   services.pipewire = {
     enable              = true;   # Вмикаємо Pipewire
@@ -414,7 +425,6 @@
   users.users.root.hashedPassword = "  ";
 
   security = {
-
     /* Налаштування sudo */
     sudo = {
       enable          = true;  # Вмикаємо sudo
