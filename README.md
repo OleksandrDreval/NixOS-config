@@ -1,7 +1,7 @@
 # NixOS Безпечна Конфігурація v4.2 ![NixOS](https://img.shields.io/badge/NixOS-24.11-blue.svg) [![Security Level](https://img.shields.io/badge/SECURITY-Paranoic-red)](https://nixos.org/security)
 
 **Декларативна система з акцентом на кібербезпеку та апаратну ізоляцію**  
-*Остання ревізія: 05/02/2025*
+*Остання ревізія: 06/02/2025*
 
 ---
 
