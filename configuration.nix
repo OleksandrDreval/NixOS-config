@@ -355,12 +355,27 @@
 
 
   # КОРИСТУВАЧІ
+  # Вимкнення можливості зміни користувачів через NixOS
+  # Це забезпечує імутабельність користувачів та їх налаштувань
   users.mutableUsers = false;
+
+  # Основна конфігурація користувача
   users.users.oleksandr = {
-    isNormalUser    = true;
-    description     = "oleksandr";
+    isNormalUser    = true;  # Вказуємо, що це звичайний користувач (не системний)
+    description     = "oleksandr";  # Опис користувача
+    
+    # Хешований пароль
     hashedPassword  = "  ";
+    
+    # Додаткові групи для надання прав доступу:
+    # wheel - права адміністратора через sudo
+    # video - доступ до графічного обладнання
+    # audio - доступ до аудіо системи
+    # networkmanager - управління мережевими з'єднаннями
+    # libvirtd, kvm - віртуалізація через KVM
     extraGroups     = [ "wheel" "video" "audio" "networkmanager" "libvirtd" "kvm" ];
+    
+    # Пакети, які будуть встановлені лише для цього користувача
     packages = with pkgs; [
       telegram-desktop
       discord
