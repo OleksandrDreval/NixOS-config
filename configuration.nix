@@ -382,8 +382,8 @@
 
 
 
-  # Налаштування АУДІО.
-  # Вмикаємо rtkit для реального часу та pipewire для обробки аудіо.
+                            # Налаштування АУДІО.
+  /*  Вмикаємо rtkit для реального часу та pipewire для обробки аудіо.  */
   security.rtkit.enable       = true;   # Вмикаємо rtkit для процесів у реальному часі
   hardware.pulseaudio.enable  = false;  # Вимикаємо PulseAudio на користь Pipewire.
   services.pipewire = {
@@ -396,25 +396,25 @@
 
 
 
-  # КОРИСТУВАЧІ
-  # Вимкнення можливості зміни користувачів через NixOS
-  # Це забезпечує імутабельність користувачів та їх налаштувань
+                        # КОРИСТУВАЧІ
+  /*  Вимкнення можливості зміни користувачів через NixOS
+      Це забезпечує імутабельність користувачів та їх налаштувань  */
   users.mutableUsers = false;
 
   # Основна конфігурація користувача
   users.users.oleksandr = {
-    isNormalUser    = true;  # Вказуємо, що це звичайний користувач (не системний)
+    isNormalUser    = true;         # Вказуємо, що це звичайний користувач (не системний)
     description     = "oleksandr";  # Опис користувача
     
     # Хешований пароль
     hashedPassword  = "  ";
     
     # Додаткові групи для надання прав доступу:
-    # wheel - права адміністратора через sudo
-    # video - доступ до графічного обладнання
-    # audio - доступ до аудіо системи
-    # networkmanager - управління мережевими з'єднаннями
-    # libvirtd, kvm - віртуалізація через KVM
+    /*  wheel - права адміністратора через sudo
+        video - доступ до графічного обладнання
+        audio - доступ до аудіо системи
+        networkmanager - управління мережевими з'єднаннями
+        libvirtd, kvm - віртуалізація через KVM  */
     extraGroups     = [ "wheel" "video" "audio" "networkmanager" "libvirtd" "kvm" ];
     
     # Пакети, які будуть встановлені лише для цього користувача
@@ -430,7 +430,7 @@
   users.users.root.hashedPassword = "  ";
 
   security = {
-    /* Налаштування sudo */
+    # Налаштування sudo
     sudo = {
       enable          = true;  # Вмикаємо sudo
       execWheelOnly   = true;  # Дозволяємо виконання sudo лише користувачам з групи wheel
@@ -442,7 +442,7 @@
       '';
     };
 
-    /* Налаштування аудиту системи */
+    # Налаштування аудиту системи
     auditd.enable = true;
     audit = {
       enable = true;
@@ -453,7 +453,7 @@
       ];
     };
 
-    /* Налаштування безпеки ядра */
+    # Налаштування безпеки ядра
     allowSimultaneousMultithreading   = false;    # Вимкнення SMT для запобігання атак типу Spectre
     forcePageTableIsolation           = true;     # Увімкнення PTI для захисту від Meltdown
     hideProcessesInformation          = true;     # Приховування інформації про процеси
@@ -463,7 +463,7 @@
     unprivilegedUsernsClone           = false;    # Заборона створення просторів імен користувачів без привілеїв
     virtualisation.flushL1DataCache   = "always"; # Очищення кешу L1 для запобігання атак типу L1TF
 
-    /* Налаштування PAM (Pluggable Authentication Modules) */
+    # Налаштування PAM (Pluggable Authentication Modules)
     pam = {
       services = {
         login = {
@@ -485,7 +485,7 @@
       ];
     };
 
-    /* Налаштування SELinux */
+    # Налаштування SELinux
     selinux = {
       enable    = true;  # Вмикаємо SELinux
       enforce   = true;  # Увімкнення режиму застосування політик
@@ -531,21 +531,21 @@
 
   # ПАКЕТИ
   environment.systemPackages = with pkgs; [
-    /* Код та текст */
+    # Код та текст
     vscode
     kate
     vim
 
-    /* Інтернет */
+    # Інтернет
     firefox
 
-    /* Інструменти */
+    # Інструменти
     wget
     curl
     unzip
     zip
 
-    /* Віртуалізація */
+    # Віртуалізація
     sbctl
     libvirt
     pciutils
@@ -554,11 +554,11 @@
     bridge-utils
     kmod
     
-    /* Дисковий простір */
+    # Дисковий простір
     gparted
     ntfs-3g
 
-    /* Відео */
+    # Відео
     obs-studio
   ];
 
@@ -567,7 +567,7 @@
   # ВІРТУАЛІЗАЦІЯ
   virtualisation = {
 
-    /* Налаштування libvirt для керування віртуалізацією */
+    # Налаштування libvirt для керування віртуалізацією
     libvirtd = {
       enable        = true;           # Увімкнення служби libvirt
       qemuPackage   = pkgs.qemu_kvm;  # Використання KVM для апаратного прискорення
@@ -594,14 +594,14 @@
         cgroup_device_acl   = []                         # Додаткові дозволені пристрої
       '';
 
-      /* Дозволені мережеві мости для віртуальних машин */
+      # Дозволені мережеві мости для віртуальних машин
       allowedBridges = [ "virbr0" "br0" ];
     };
 
-    /* Увімкнення перенаправлення USB через SPICE для віртуальних машин */
+    # Увімкнення перенаправлення USB через SPICE для віртуальних машин
     spiceUSBRedirection.enable = true;
 
-    /* Налаштування мережі за замовчуванням для віртуальних машин */
+    # Налаштування мережі за замовчуванням для віртуальних машин
     defaultNetwork = {
       enable        = true;     # Увімкнення мережі за замовчуванням
       name          = "virbr0"; # Ім'я мережевого інтерфейсу
