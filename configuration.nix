@@ -10,8 +10,7 @@
 
   # ЗАВАНТАЖУВАЧ
   boot = {
-    /* Налаштування завантажувача
-    systemd-boot як основний завантажувач */
+    # Налаштування завантажувача systemd-boot як основного завантажувач
     loader = {
       systemd-boot = {
         enable              = true;   # Увімкнення systemd-boot
@@ -34,7 +33,8 @@
       systemd.enable = true; # Увімкнення systemd в initrd
     };
 
-    # Повернення до latest kernel в заміну hardened kernel через недоцільність та пряме налаштування ядра через параметри ядра та sysctl 
+    /*  Повернення до latest kernel в заміну hardened kernel 
+        через недоцільність у використанні за умови прямого налаштування ядра через параметри ядра та sysctl  */
     kernelPackages = pkgs.linuxPackages_latest;
 
     # Завантажувальні модулі ядра, необхідні для віртуалізації kvm-amd
@@ -64,12 +64,12 @@
       "vsyscall                   =none"                       # Вимкнення vsyscall
     ];
 
-    /* Підтримувані файлові системи */
+    # Підтримувані файлові системи
     supportedFilesystems =
       [ "btrfs" "vfat" "ext4" "xfs" "ntfs" ] ++
       lib.optional (lib.meta.availableOn pkgs.stdenv.hostPlatform config.boot.zfs.package) "zfs"; # Додати ZFS, якщо доступний
 
-    /* Безпекові налаштування парметрів ядра sysctl*/
+    # Безпекові налаштування парметрів ядра sysctl
     kernel.sysctl = {
       "dev.tty.ldisc_autoload"                      = 0;      # Вимкнення автоматичного завантаження лінійних дисциплін для терміналів. Це покращує безпеку, запобігаючи завантаженню шкідливих лінійних дисциплін.
       "kernel.dmesg_restrict"                       = 1;      # Обмеження доступу до dmesg
@@ -118,18 +118,20 @@
       "sysv"    "udf"       "ufs"        "vivid"
     ];
 
-    cleanTmpDir = true;
-    tmpOnTmpfs = true;
+    cleanTmpDir = true; # Очищення тимчасової директорії при кожному запуску системи
+    tmpOnTmpfs = true;  # Використання tmpfs для /tmp
   };
 
 
   # МЕРЕЖА
   networking = {
-    hostName = "Rampart-Nix";     # Ім'я хоста
-    enableIPv6 = true;            # Увімкнення IPv6
-    tempAddresses = "disabled";   # Вимкнення тимчасових адрес
+    hostName = "Rampart-Nix";     # Назва хоста
     networkmanager.enable = true; # Використання NetworkManager
 
+    enableIPv6 = true;            # Увімкнення IPv6
+    tempAddresses = "disabled";   # Вимкнення тимчасових адрес
+
+    
     # DNS-сервери
     nameservers = [
       "1.1.1.1" # Cloudflare
@@ -138,7 +140,7 @@
     ];
 
 
-    #БРАНДМАУЕР:
+    #БРАНДМАУЕР
     firewall = {
       enable = true;  # Увімкнення брандмауера
 
@@ -150,6 +152,7 @@
         80    # HTTP
         443   # HTTPS
         8080  # altHTTP
+        # 737   # specific SSH port
       ];
 
       # Дозволені UDP порти:
@@ -207,7 +210,11 @@
         ip6tables -A INPUT -p icmpv6 --icmpv6-type echo-request -j DROP
       '';
 
-      # Очищення правил IPtables при зупинці
+                       # Очищення правил IPtables при зупинці
+      /*  Використовуємо -F для видалення всіх правил у вказаних ланцюжках
+          Використовуємо -X для видалення всіх користувацьких ланцюжків
+          Це забезпечує чистий стан мережевого фільтру при перезапуску системи
+          та уникнення конфліктів між старими та новими правилами  */
       extraStopCommands = ''
         iptables -F
         iptables -X
