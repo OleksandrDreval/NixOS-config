@@ -323,7 +323,6 @@
 
   # СЕРВІСИ
   services = {
-
               # ГРАФІЧНИЙ ІНТЕРФЕЙС та взаємодія з ним.
     /*  Вмикаємо X server з розкладками клавіатури "us" та "ua",
         дозволяючи перемикання між ними за допомогою Alt+Shift.  */
@@ -644,10 +643,26 @@
     # Налаштування libvirt для керування віртуалізацією
     libvirtd = {
       enable        = true;           # Увімкнення служби libvirt
-      qemuPackage   = pkgs.qemu_kvm;  # Використання KVM для апаратного прискорення
       onBoot        = "ignore";       # Не запускати віртуальні машини автоматично при завантаженні
       onShutdown    = "shutdown";     # Завершувати віртуальні машини при вимкненні системи
       
+      qemu = {
+        package           = pkgs.qemu_kvm;    # Використання KVM для апаратного прискорення
+        runAsRoot         = false;            # Запуск QEMU без прав root
+        swtpm.enable      = true;             # Увімкнення підтримки TPM
+        vhostUserPackages = [pkgs.virtiofsd]; # Підтримка virtiofsd
+        ovmf = {
+          enable          = true; # Увімкнення OVMF для UEFI
+          packages = [
+            (pkgs.OVMF.override {
+              secureBoot  = true; # Увімкнення Secure Boot
+              tpmSupport  = true; # Підтримка TPM
+            })
+            .fd
+          ];
+        };
+      };
+
       extraConfig = ''
         security_default_confined   = 1           # Увімкнення захисту за замовчуванням
         security_driver             = "selinux"   # Використання SELinux для захисту
@@ -666,15 +681,11 @@
         seccomp_sandbox     = 1                          # Увімкнення захисту через seccomp
         memory_backing_dir  = "/var/lib/libvirt/memory"  # Директорія для файлів підкачки
         cgroup_controllers  = [ "cpu" "memory" "pids" ]  # Контролери ресурсів
-        cgroup_device_acl   = []                         # Додаткові дозволені пристрої
       '';
 
       # Дозволені мережеві мости для віртуальних машин
       allowedBridges = [ "virbr0" "br0" ];
     };
-
-    # Увімкнення перенаправлення USB через SPICE для віртуальних машин
-    spiceUSBRedirection.enable = true;
 
     # Налаштування мережі за замовчуванням для віртуальних машин
     defaultNetwork = {
