@@ -71,7 +71,7 @@
     # Безпекові налаштування парметрів ядра sysctl
     kernel.sysctl = {
       "kernel.unprivileged_userns_clone"            = "0";
-
+      # Disable binfmt. Breaks Roseta, see overrides file.
       "fs.binfmt_misc.status"                       = "0";
       "kernel.io_uring_disabled"                    = "2";
       "net.ipv4.ip_forward"                         = "0";
@@ -123,6 +123,13 @@
       "net.ipv6.conf.all.autoconf"                  = "0";
       "net.ipv6.conf.default.dad_transmits"         = "0";
       "net.ipv6.conf.all.dad_transmits"             = "0";
+
+      "net.ipv6.conf.default.max_addresses"         = "1";
+      "net.ipv6.conf.all.max_addresses"             = "1";
+      "net.ipv6.icmp.echo_ignore_all"               = "1";
+      "net.ipv6.icmp.echo_ignore_anycast"           = "1";
+      "net.ipv6.icmp.echo_ignore_multicast"         = "1";
+
 
       "dev.tty.ldisc_autoload"                      = "0";      # Вимкнення автоматичного завантаження лінійних дисциплін для терміналів. Це покращує безпеку, запобігаючи завантаженню шкідливих лінійних дисциплін.
       "kernel.dmesg_restrict"                       = "1";      # Обмеження доступу до dmesg
