@@ -71,7 +71,6 @@
     # Безпекові налаштування парметрів ядра sysctl
     kernel.sysctl = {
       "kernel.unprivileged_userns_clone"            = "0";
-      # Disable binfmt. Breaks Roseta, see overrides file.
       "fs.binfmt_misc.status"                       = "0";
       "kernel.io_uring_disabled"                    = "2";
       "net.ipv4.ip_forward"                         = "0";
@@ -99,7 +98,6 @@
       "fs.protected_symlinks"                       = "1";
       "fs.suid_dumpable"                            = "0";
       "kernel.kexec_load_disabled"                  = "1";
-      "kernel.printk"                               = "3 3 3 3";
       "kernel.perf_cpu_time_max_percent"            = "1";
       "kernel.perf_event_max_sample_rate"           = "1";
       "vm.mmap_min_addr"                            = "65536";
@@ -123,7 +121,6 @@
       "net.ipv6.conf.all.autoconf"                  = "0";
       "net.ipv6.conf.default.dad_transmits"         = "0";
       "net.ipv6.conf.all.dad_transmits"             = "0";
-
       "net.ipv6.conf.default.max_addresses"         = "1";
       "net.ipv6.conf.all.max_addresses"             = "1";
       "net.ipv6.icmp.echo_ignore_all"               = "1";
