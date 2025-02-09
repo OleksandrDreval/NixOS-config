@@ -41,30 +41,29 @@
 
     # Параметри ядра для безпеки
     kernelParams = [
-      "efi=disable_early_pci_dma"
-      "iommu.passthrough=0"
-      "mitigations=auto,nosmt"
-      "ia32_emulation=0"
-      "oops=panic"
-      "loglevel=0"
-      "quiet"
-      "random.trust_cpu=off"
-      "random.trust_bootloader=off"
-      "iommu=force"
-      "iommu.strict=1"
-
-      "amd_iommu                  =pt  force_isolation"                         # AMD IOMMU Passthrough
+      "amd_iommu                  =force_isolation"
       "debugfs                    =off"                        # Вимкнення debugfs для безпеки
+      "efi=disable_early_pci_dma"
+      "ia32_emulation             =0"
       "init_on_alloc              =1"                          # Ініціалізація пам'яті при виділенні
       "init_on_free               =1"                          # Ініціалізація пам'яті при звільненні
+      "iommu                      =force"
+      "iommu.passthrough          =0"
+      "iommu.strict               =1"
       "kernel.printk              =\"3 4 1 3\""                # Налаштування рівня виводу ядра
       "l1tf                       =full,force"                 # Захист від L1 Terminal Fault
       "lockdown                   =confidentiality:integrity"  # Режим блокування ядра
+      "loglevel                   =0"
       "mds                        =full,nosmt"                 # Захист від Microarchitectural Data Sampling
+      "mitigations                =auto,nosmt"
       "module.sig_enforce         =1"                          # Вимагати підписи модулів ядра
+      "oops                       =panic"
       "page_alloc.shuffle         =1"                          # Рандомізація виділення сторінок пам'яті
       "page_poison                =1"                          # Заповнення звільненої пам'яті значеннями для запобігання витоку даних
       "pti                        =on"                         # Page Table Isolation
+      "quiet"
+      "random.trust_bootloader    =off"
+      "random.trust_cpu           =off"
       "randomize_kstack_offset    =on"                         # Рандомізація зміщення стеку ядра
       "slab_nomerge"                                           # Вимкнення об'єднання slab-ів
       "slub_debug                 =FZP"                        # Налагодження SLAB allocator
