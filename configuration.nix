@@ -184,19 +184,33 @@
       "sysv"    "udf"       "ufs"        "vivid"
     ];
 
-    cleanTmpDir = true; # Очищення тимчасової директорії при кожному запуску системи
-    tmpOnTmpfs = true;  # Використання tmpfs для /tmp
+    cleanTmpDir = true;  # Очищення тимчасової директорії при кожному запуску системи
+    tmpOnTmpfs  = true;  # Використання tmpfs для /tmp
   };
 
 
   # МЕРЕЖА
   networking = {
-    hostName = "Rampart-Nix";     # Назва хоста
-    networkmanager.enable = true; # Використання NetworkManager
-    enableIPv6 = true;            # Увімкнення IPv6
-    tempAddresses = "disabled";   # Вимкнення тимчасових адрес
+    hostName                    = "Rampart-Nix";  # Назва хоста
+    networkmanager.enable       = true;           # Використання NetworkManager
+    networkmanager.wifi.backend = "iwd";          # Використання iwd як бекенду для Wi-Fi
+    enableIPv6                  = true;           # Увімкнення IPv6
+    tempAddresses               = "disabled";     # Вимкнення тимчасових адрес
 
-    
+    # Налаштування iwd для Wi-Fi з рандомізацією MAC-адрес
+    wireless.iwd = {
+      enable = true;
+      settings = {
+        General = {
+          AddressRandomization    = "network";  # Рандомізація MAC-адрес для кожного мережевого підключення
+        };
+
+        Settings = {
+          AlwaysRandomizeAddress  = true;       # Завжди рандомізувати MAC-адресу
+        };
+      };
+    };
+
     # DNS-сервери
     nameservers = [
       "1.1.1.1" # Cloudflare
@@ -207,7 +221,7 @@
 
     #БРАНДМАУЕР
     firewall = {
-      enable = true;      # Увімкнення брандмауера
+      enable    = true;   # Увімкнення брандмауера
       allowPing = false;  # Заборона ping запитів
       # Дозволені TCP порти:
       allowedTCPPorts = [
@@ -284,8 +298,8 @@
         iptables -X
       '';
 
-      autoLoadConntrackHelpers = false; # Вимкнення автоматичного завантаження conntrack helpers
-      checkReversePath = "strict";      # Строга перевірка зворотнього шляху
+      autoLoadConntrackHelpers  = false;    # Вимкнення автоматичного завантаження conntrack helpers
+      checkReversePath          = "strict"; # Строга перевірка зворотнього шляху
       # Модулі для відстеження з'єднань
       connectionTrackingModules = [
         "amanda"
@@ -300,10 +314,10 @@
         "tftp"
       ];
 
-      logRefusedConnections = true; # Логування відхилених з'єднань
-      logReversePathDrops = true;   # Логування відкинутих пакетів через зворотній шлях
-      logIPv6Drops = true;          # Логування відкинутих IPv6 пакетів
-      logDenied = "all";            # Журналювання всіх відхилених з'єднань
+      logRefusedConnections = true;   # Логування відхилених з'єднань
+      logReversePathDrops   = true;   # Логування відкинутих пакетів через зворотній шлях
+      logIPv6Drops          = true;   # Логування відкинутих IPv6 пакетів
+      logDenied             = "all";  # Журналювання всіх відхилених з'єднань
     };
   };
 
@@ -325,10 +339,10 @@
   # Налаштування макету клавіатури консолі
   # Використовуємо американську розкладку клавіатури.
   console = { 
-    keyMap = "us";
-    earlySetup = true;
-    font = "sun12x22";
-    colors = theme.colors16;
+    keyMap      = "us";
+    earlySetup  = true;
+    font        = "sun12x22";
+    colors      = theme.colors16;
   };
 
 
@@ -650,7 +664,7 @@
 
   # ВІРТУАЛІЗАЦІЯ
   virtualisation = {
-    useEFIBoot = true;
+    useEFIBoot    = true;
     useSecureBoot = true;
     # Налаштування libvirt для керування віртуалізацією
     libvirtd = {
