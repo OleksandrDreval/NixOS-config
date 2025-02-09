@@ -19,7 +19,7 @@
 
 Система інтегрує:
 
-- **Криптографічний фундамент**: LUKS2 з апаратним захистом DMA (mitigateDMAAttacks)
+- **Криптографічний фундамент**: LUKS2 з апаратним захистом DMA (`mitigateDMAAttacks`)
 - **Ядро з хитрим тюнінгом**: 32 параметри завантаження + 105 sysctl-оптимізацій
 - **Мережева фортеця**: 28 правил IPv4 + 20 правил IPv6 + рандомізація MAC через iwd
 - **Віртуалізаційний сендбокс**: Libvirt/QEMU з Secure Boot + TPM емуляцією
@@ -29,12 +29,12 @@
 **Архітектурні особливості:**
 1. **Завантажувальний ланцюг**: 
    -Systemd-boot з криптографічною цілісністю
-   - Двофакторна ініціалізація ядра (kexec_load_disabled + module.sig_enforce)
+   - Двофакторна ініціалізація ядра (`kexec_load_disabled` + `module.sig_enforce`)
 2. **Мережевий імунітет**: 
    - Синхронний захист від TCP-флагових аномалій
    - Проактивне блокування ARP-spoofing через rp_filter
    - Генератор MAC-маскування для кожного Wi-Fi сеансу
-   - Повна ізоляція IPv6 (autoconf=0, accept_ra=0)
+   - Повна ізоляція IPv6 (`autoconf=0`, `accept_ra=0`)
 3. **Апаратна дисципліна**: 
    - Повне вимкнення SMT/Spectre/Meltdown векторів
    - Scudo allocator з нульовою ініціалізацією пам'яті
@@ -49,15 +49,13 @@
    - SLUB Hardening з FZP-дебагінгом
 
 **Операційні характеристики:**
-- Детермінована імутабельність (users.mutableUsers = false)
-- Атомарна верифікація пакетів (nix.settings.trusted-users)
-- Жорсткий аудит (security.auditd + кастомні правила)
+- Детермінована імутабельність (`users.mutableUsers = false`)
+- Атомарна верифікація пакетів (`nix.settings.trusted-users`)
+- Жорсткий аудит (`security.auditd` + кастомні правила)
 - Нульова толерантність до:
-  - SUID/SGID (security.restrictSUIDSGID)
-  - User namespaces (security.unprivilegedUsernsClone)
-  - Підробки ядра (security.protectKernelImage)
-
-Ця конфігурація - це кібернетичний організм, де кожен sysctl-параметр є захисним редутом, кожен мережевий пакет - під протокольним наглядом, а кожен системний виклик - у жорсткому SElinux-контексті.
+  - SUID/SGID (`security.restrictSUIDSGID`)
+  - User namespaces (`security.unprivilegedUsernsClone`)
+  - Підробки ядра (`security.protectKernelImage`)
 
 ---
 
