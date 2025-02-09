@@ -29,8 +29,12 @@
     # Налаштування initrd (initial RAM disk)
     initrd = {
       # Налаштування LUKS шифрування
-      luks.devices."luks-911765a7-6ecb-4c99-88ef-b44c26fd3583".device = "/dev/disk/by-uuid/911765a7-6ecb-4c99-88ef-b44c26fd3583";
-      systemd.enable = true; # Увімкнення systemd в initrd
+      luks = {
+        devices."luks-911765a7-6ecb-4c99-88ef-b44c26fd3583".device = "/dev/disk/by-uuid/911765a7-6ecb-4c99-88ef-b44c26fd3583";
+        mitigateDMAAttacks = true;  # Захист від атак DMA
+      };
+
+      systemd.enable       = true;  # Увімкнення systemd в initrd
     };
 
     /*  Повернення до latest kernel в заміну hardened kernel 
