@@ -41,7 +41,19 @@
 
     # Параметри ядра для безпеки
     kernelParams = [
-      "amd_iommu                  =pt"                         # AMD IOMMU Passthrough
+      "efi=disable_early_pci_dma"
+      "iommu.passthrough=0"
+      "mitigations=auto,nosmt"
+      "ia32_emulation=0"
+      "oops=panic"
+      "loglevel=0"
+      "quiet"
+      "random.trust_cpu=off"
+      "random.trust_bootloader=off"
+      "iommu=force"
+      "iommu.strict=1"
+
+      "amd_iommu                  =pt  force_isolation"                         # AMD IOMMU Passthrough
       "debugfs                    =off"                        # Вимкнення debugfs для безпеки
       "init_on_alloc              =1"                          # Ініціалізація пам'яті при виділенні
       "init_on_free               =1"                          # Ініціалізація пам'яті при звільненні
