@@ -596,6 +596,24 @@
 
   environment.memoryAllocator.provider  = "scudo";          # Використання scudo як аллокатора пам'яті для підвищення безпеки
   environment.variables.SCUDO_OPTIONS   = "ZeroContents=1"; # Налаштування scudo для ініціалізації пам'яті нулями
+  environment.etc = {
+    # Заборона входу root через TTY
+    securetty.text = ''
+      # /etc/securetty: list of terminals on which root is allowed to login.
+    '';
+
+    # Встановлення статичного machine-id для покращення конфіденційності
+    machine-id.text = ''
+      b08dfa6083e7567a1921a715000001fb
+    '';
+
+    # Імпорт чорного списку модулів ядра
+    "modprobe.d/nm-module-blacklist.conf".text = ''
+      install firewire-core /bin/true
+      install thunderbolt /bin/true
+      install bluetooth /bin/true
+    '';
+  };
 
 
 
