@@ -192,6 +192,7 @@
   };
 
 
+
   # МЕРЕЖА
   networking = {
     hostName                    = "Rampart-Nix";  # Назва хоста
