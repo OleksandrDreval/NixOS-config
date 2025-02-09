@@ -61,12 +61,10 @@
 1. **Клонування репозиторію:**
    ```bash
    git clone https://github.com/username/Rampart-Nix.git
-   <!-- Команда для клонування поточного репозиторію -->
    ```
 2. **Застосування конфігурації:**
    ```bash
    nixos-rebuild switch -I nixos-config=./configuration.nix
-   <!-- Команда для оновлення системи з використанням даної конфігурації NixOS -->
    ```
 ---
 
