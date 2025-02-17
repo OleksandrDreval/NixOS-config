@@ -160,8 +160,7 @@
       "net.ipv6.conf.default.forwarding"            = "0";            # Вимкнення forwarding для IPv6 за замовчуванням. Запобігає несанкціонованій передачі даних.
       "net.ipv6.conf.default.max_addresses"         = "1";            # Обмеження кількості IPv6 адрес на інтерфейсі. Запобігає атакам через багатоадресність.
       "net.ipv6.conf.default.router_solicitations"  = "0";            # Вимкнення router solicitations. Запобігає несанкціонованій конфігурації мережі.
-      "net.ipv6.icmp.echo_ignore_all"               = "1";            # Ігнорування всіх ICMP echo запитів (ping). Запобігає DoS атакам через ping.
-      "net.ipv6.icmp.echo_ignore_all"               = "1";            # Ігнорування всіх ICMPv6 echo запитів. Запобігає DoS атакам через ping.
+      "net.ipv6.icmp.echo_ignore_all"               = "1";            # Ігнорування всіх ICMP IPv6 echo запитів. Запобігає DoS атакам через ping.
       "net.ipv6.icmp.echo_ignore_anycast"           = "1";            # Ігнорування anycast ICMPv6 echo. Запобігає атакам через anycast адреси.
       "net.ipv6.icmp.echo_ignore_multicast"         = "1";            # Ігнорування multicast ICMPv6 echo. Запобігає атакам через multicast адреси.
       "net.ipv6.default.accept_ra"                  = "0";            # Заборона RA за замовчуванням. Запобігає автоматичній конфігурації мережі.
@@ -246,8 +245,6 @@
         53    # DNS
         67    # DHCP-сервер
         68    # DHCP-клієнт
-        80    # HTTP
-        443   # HTTPS
       ];
 
 
@@ -284,7 +281,6 @@
         iptables -A INPUT -p tcp --tcp-flags ALL FIN -j DROP
         iptables -A INPUT -p tcp --tcp-flags ALL URG,PSH,FIN -j DROP
         iptables -A INPUT -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
-        iptables -A INPUT -p tcp --tcp-flags SYN,FIN SYN,FIN -j DROP
 
         iptables -A INPUT -p udp --dport 123 -j DROP
         iptables -A INPUT -p udp --dport 123 -s 192.168.1.0/24 -j ACCEPT
