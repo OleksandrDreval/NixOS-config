@@ -175,6 +175,9 @@
     blacklistedKernelModules = [
       # Застарілі мережеві протоколи
       "ax25" "netrom" "rose"
+
+      # Блокування інтерфейсів передачі даних та бездротового зв'язку
+      "bluetooth" "firewire-core" "thunderbolt"
       
       # Застарілі або потенційно небезпечні файлові системи
       "adfs"    "affs"      "befs"       "bfs" 
@@ -588,7 +591,7 @@
         { domain = "*"; type = "hard"; item = "nproc"; value = "512"; }    # Максимум процесів
       ];
     };
-
+    
     # Налаштування SELinux
     selinux = {
       enable    = true;  # Вмикаємо SELinux
@@ -601,8 +604,8 @@
     }; */
   };
 
-  environment.memoryAllocator.provider  = "scudo";          # Використання scudo як аллокатора пам'яті для підвищення безпеки
-  environment.variables.SCUDO_OPTIONS   = "ZeroContents=1"; # Налаштування scudo для ініціалізації пам'яті нулями
+  environment.memoryAllocator.provider  = "scudo";           # Використання scudo як аллокатора пам'яті для підвищення безпеки
+  environment.variables.SCUDO_OPTIONS   = "ZeroContents=1";  # Налаштування scudo для ініціалізації пам'яті нулями
   environment.etc = {
     # Заборона входу root через TTY
     securetty.text = ''
@@ -611,14 +614,7 @@
 
     # Встановлення статичного machine-id для покращення конфіденційності
     machine-id.text = ''
-      b08dfa6083e7567a1921a715000001fb
-    '';
-
-    # Імпорт чорного списку модулів ядра
-    "modprobe.d/nm-module-blacklist.conf".text = ''
-      install firewire-core /bin/true
-      install thunderbolt /bin/true
-      install bluetooth /bin/true
+      4e8b0b4e0ef1f0e5d2c8d39f8c77f6b3
     '';
   };
 
@@ -627,22 +623,22 @@
   # NIX
   nix.settings = {
     /*  Включення експериментальних функцій:
-        - nix-command: дозволяє використовувати нову команду nix
-        - flakes: впроваджує нову модель управління пакетами  */
-    extra-experimental-features   = [ "nix-command" "flakes" ];
+        nix-command: дозволяє використовувати нову команду nix
+        flakes: впроваджує нову модель управління пакетами  */
+    extra-experimental-features = [ "nix-command" "flakes" ];
 
-    sandbox                       = true; # Увімкнення пісочниці для більшої безпеки під час збірки пакетів
-    auto-optimise-store           = true; # Автоматична оптимізація сховища для зменшення використання дискового простору
+    sandbox                     = true; # Увімкнення пісочниці для більшої безпеки під час збірки пакетів
+    auto-optimise-store         = true; # Автоматична оптимізація сховища для зменшення використання дискового простору
 
     /*  Користувачі, яким дозволено виконувати привілейовані операції:
         - root: системний адміністратор
         - @wheel: користувачі з правами адміністратора  */
-    trusted-users                 = [ "@wheel" ];
+    trusted-users = [ "@wheel" ];
 
     /*  Користувачі, яким дозволено використовувати Nix:
         - root: системний адміністратор
         - @wheel: користувачі з правами адміністратора  */
-    allowed-users                 = [ "@wheel" ];
+    allowed-users = [ "@wheel" ];
   };
 
   /*  Дозвіл на використання пропрієтарного програмного забезпечення
