@@ -580,14 +580,33 @@
 
     # Налаштування SELinux
     selinux = {
-      enable     = true;  # Вмикаємо SELinux
-      enforce    = true;  # Увімкнення режиму застосування політик
+      enable     = true;        # Вмикаємо SELinux
+      enforce    = true;        # Увімкнення режиму застосування політик
+      type       = "targeted";  # Режим цільового захисту
+      extraModulePackages = with pkgs; [ selinux-policy ];  # Додаткові політики
     };
 
-    /* apparmor = {
-      enable                      = true;
-      killUnconfinedConfinables   = true;
-    }; */
+    # Додаємо AppArmor разом з SELinux
+    apparmor = {
+      enable                    = true;
+      killUnconfinedConfinables = true;
+      packages = [ pkgs.apparmor-profiles ];  # Стандартні профілі
+    };
+
+    # MAC для критичних сервісів
+    mac = {
+      # Профіль для libvirt
+      libvirtd = {
+        enable  = true;
+        profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.libvirtd";
+      };
+      
+      # Профіль для веб-сервера
+      nginx = {
+        enable  = true;
+        profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.nginx";
+      };
+    };
   };
 
   environment.memoryAllocator.provider  = "scudo";           # Використання scudo як аллокатора пам'яті для підвищення безпеки
