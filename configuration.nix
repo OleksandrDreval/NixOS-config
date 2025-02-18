@@ -427,6 +427,27 @@
     '';
 
 
+    # МОНІТОРИНГ ЛОГІВ
+    # Система збору метрик
+    prometheus = {
+      enable = true;
+      exporters = {
+        node = {
+          enable = true;
+          enabledCollectors = [ "systemd" "logind" "network" ];
+        };
+      };
+
+      scrapeConfigs = [
+        {
+          job_name = "nixos";
+          static_configs = [{ targets = [ "localhost:9100" ]; }];
+        }
+      ];
+    };
+
+
+
                 # SSH
     /*  Налаштування SSH сервера.
         Вимкнено за замовчуванням для підвищення безпеки.
@@ -672,6 +693,12 @@
     qemu_kvm
     bridge-utils
     kmod
+
+    # Інструмент для виявлення вторгнень
+    audit
+    aide
+    lynis
+    osquery
     
     # Дисковий простір
     gparted
