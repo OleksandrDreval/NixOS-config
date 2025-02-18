@@ -104,7 +104,6 @@
       "kernel.randomize_va_space"                   = "2";            # Рандомізація адресного простору. Рівень 2 забезпечує більш сильну рандомізацію.
       "kernel.sysrq"                                = "4";            # Обмеження можливостей магічної клавіші SysRq. Рівень 4 дозвляє лише деякі функції.
       "kernel.unprivileged_bpf_disabled"            = "1";            # Вимкнення BPF для непривілейованих користувачів. Це запобігає використанню BPF для атак.
-      "kernel.unprivileged_userns_clone"            = "0";            # Заборона створення user namespaces для непривілейованих користувачів. Запобігає використанню контейнерів для ескалації привілеїв.
       "kernel.yama.ptrace_scope"                    = "2";            # Обмеження ptrace. Рівень 2 дозволяє ptrace тільки для процесів з тим самим UID.
       "net.core.bpf_jit_enable"                     = "false";        # Вимкнення JIT для BPF. Це покращує безпеку, запобігаючи використанню JIT для атак.
       "net.core.bpf_jit_harden"                     = "2";            # Зміцнення JIT для BPF. Рівень 2 забезпечує більш сильне зміцнення.
@@ -282,10 +281,10 @@
         iptables -A INPUT -p tcp --tcp-flags ALL URG,PSH,FIN -j DROP
         iptables -A INPUT -p tcp --tcp-flags ALL ACK,RST,SYN,FIN -j DROP
 
-        iptables -A INPUT -p udp --dport 123 -j DROP
         iptables -A INPUT -p udp --dport 123 -s 192.168.1.0/24 -j ACCEPT
-        iptables -A INPUT -p udp --dport 5353 -j DROP
         iptables -A INPUT -p udp --dport 5353 -s 192.168.1.0/24 -j ACCEPT
+        iptables -A INPUT -p udp --dport 123 -j DROP
+        iptables -A INPUT -p udp --dport 5353 -j DROP
         
         iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
         ip6tables -A INPUT -p icmpv6 --icmpv6-type echo-request -j DROP
@@ -555,7 +554,7 @@
     lockKernelModules                 = true;     # Блокування завантаження нових модулів ядра
     protectKernelImage                = true;     # Захист образу ядра
     restrictSUIDSGID                  = true;     # Обмеження SUID/SGID бітів
-    unprivilegedUsernsClone           = false;    # Заборона створення просторів імен користувачів без привілеїв
+    unprivilegedUsernsClone           = false;    # Заборона створення user namespaces для непривілейованих користувачів.
     virtualisation.flushL1DataCache   = "always"; # Очищення кешу L1 для запобігання атак типу L1TF
 
     # Налаштування PAM (Pluggable Authentication Modules)
