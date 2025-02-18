@@ -452,6 +452,19 @@
       settings.server.http_port = 4000;
     };
 
+    # Централізоване зберігання логів
+    loki = {
+      enable = true;
+      configuration = {
+        auth_enabled = false;
+        ingester = {
+          lifecycler = {
+            address = "127.0.0.1";
+            ring = { kvstore = { store = "inmemory"; }; };
+          };
+        };
+      };
+    };
 
 
                 # SSH
