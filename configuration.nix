@@ -413,7 +413,7 @@
       Compress          =yes          # Вмикаємо стиснення лог-файлів
       ForwardToSyslog   =yes          # Пересилаємо логи до syslog
       MaxLevelStore     =warning      # Максимальний рівень повідомлень, що зберігаються локально
-      MaxLevelSyslog    =err          # Максимальний рівень повідомлень, що відправляються до syslog
+      MaxLevelSyslog    =info         # Максимальний рівень повідомлень, що відправляються до syslog
       MaxRetentionSec   =1week        # Максимальний час зберігання логів - 1 тиждень
       RateLimitBurst    =100          # Кількість повідомлень перед застосуванням обмеження швидкості
       RateLimitInterval =30s          # Інтервал часу для обмеження швидкості
@@ -463,6 +463,27 @@
             ring = { kvstore = { store = "inmemory"; }; };
           };
         };
+      };
+    };
+
+    # Збір та аналіз логів
+    promtail = {
+      enable = true;
+      configuration = {
+        server = { http_listen_port = 9080; };
+        clients = [{ url = "http://localhost:3100/loki/api/v1/push"; }];
+        scrape_configs = [
+          {
+            job_name = "journal";
+            journal = { max_age = "12h"; };
+            relabel_configs = [
+              {
+                source_labels = ["__journal__hostname"];
+                target_label = "host";
+              }
+            ];
+          }
+        ];
       };
     };
 
