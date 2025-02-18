@@ -231,8 +231,6 @@
       # Дозволені TCP порти:
       allowedTCPPorts = [
         53    # DNS
-        67    # DHCP-сервер
-        68    # DHCP-клієнт
         80    # HTTP
         443   # HTTPS
         # 737   # specific SSH port
@@ -242,8 +240,7 @@
       # Дозволені UDP порти:
       allowedUDPPorts = [
         53    # DNS
-        67    # DHCP-сервер
-        68    # DHCP-клієнт
+        68    # DHCP
       ];
 
 
@@ -697,7 +694,7 @@
       extraConfig = ''
         security_default_confined   = 1           # Увімкнення захисту за замовчуванням
         security_driver             = "selinux"   # Використання SELinux для захисту
-        user                        = "@libvirt"  # Користувач для запуску віртуальних машин
+        user                        = "oleksandr"  # Користувач для запуску віртуальних машин
         group                       = "@libvirt"  # Група для запуску віртуальних машин
         dynamic_ownership           = 1           # Динамічне призначення власника файлів
         remember_owner              = 1           # Запам'ятовування власника файлів
