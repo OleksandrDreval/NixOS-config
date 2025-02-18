@@ -446,6 +446,12 @@
       ];
     };
 
+    # Візуалізація логів
+    grafana = {
+      enable = true;
+      settings.server.http_port = 4000;
+    };
+
 
 
                 # SSH
