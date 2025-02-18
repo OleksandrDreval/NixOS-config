@@ -505,8 +505,8 @@
         video - доступ до графічного обладнання
         audio - доступ до аудіо системи
         networkmanager - управління мережевими з'єднаннями
-        libvirtd, kvm - віртуалізація через KVM  */
-    extraGroups     = [ "wheel" "video" "audio" "networkmanager" "libvirtd" "kvm" ];
+        libvirt, kvm - віртуалізація через KVM  */
+    extraGroups     = [ "wheel" "video" "audio" "networkmanager" "libvirt" "kvm" ];
     
     # Пакети, які будуть встановлені лише для цього користувача
     packages = with pkgs; [
