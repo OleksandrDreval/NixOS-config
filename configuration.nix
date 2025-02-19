@@ -435,6 +435,7 @@
         node = {
           enable = true;
           enabledCollectors = [ "systemd" "logind" "network" ];
+          openFirewall = false;
         };
       };
 
@@ -485,6 +486,8 @@
           }
         ];
       };
+
+      openFirewall = false;
     };
 
 
