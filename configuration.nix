@@ -668,6 +668,19 @@
         profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.nginx";
       };
     };
+
+
+    # КОРЕКТУВАННЯ TLS СЕРТИФІКАТІВ (ЛОКАЛЬНІ)
+    acme = {
+      acceptTerms     = true;
+      defaults.email  = "admin@localhost";
+      certs."monitoring.local" = {
+        domain            = "monitoring.local";
+        extraDomainNames  = [ "localhost" "127.0.0.1" ];
+        dnsProvider       = "null";                       # Використовуємо самопідписані сертифікати
+        reloadServices    = [ "nginx" ];
+      };
+    };
   };
 
   environment.memoryAllocator.provider  = "scudo";           # Використання scudo як аллокатора пам'яті для підвищення безпеки
