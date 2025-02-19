@@ -226,8 +226,9 @@
 
     #БРАНДМАУЕР
     firewall = {
-      enable    = true;   # Увімкнення брандмауера
-      allowPing = false;  # Заборона ping запитів
+      enable        = true;   # Увімкнення брандмауера
+      allowPing     = false;  # Заборона ping запитів
+      rejectPackets = true;   # Блокування замість відкидання пакетів
       # Дозволені TCP порти:
       allowedTCPPorts = [
         53    # DNS
@@ -403,6 +404,16 @@
     };
 
 
+    # ЛОКАЛЬНИЙ DNS
+    dnsmasq = {
+      enable = true;
+      settings = {
+        address = "/monitoring.local/127.0.0.1";
+        listen-address = "127.0.0.1";
+      };
+    };
+
+
                           # ЖУРНАЛЮВАННЯ
     /*  Налаштування journald для журналювання подій системи.
         Вмикаємо аудит, стиснення логів, пересилання до syslog,
@@ -447,7 +458,7 @@
       ];
     };
 
-    # Візуалізація логів
+    # Візуалізація логів Grafana
     grafana = {
       enable = true;
       settings = {
@@ -477,6 +488,8 @@
       };
     };
 
+
+    # AIDE
     aide = {
       mail.enable = false;  # Вимикаємо зовнішні сповіщення
       reportPath = "/var/log/aide/report-$(date +%Y-%m-%d).txt";
@@ -512,7 +525,7 @@
     };
 
 
-    # ЛОКАЛЬНИЙ NGINX
+    # NGINX
     nginx = {
       enable = true;
       recommendedTlsSettings = true;
@@ -713,7 +726,7 @@
     };
 
 
-    # КОРЕКТУВАННЯ TLS СЕРТИФІКАТІВ (ЛОКАЛЬНІ)
+    # TLS СЕРТИФІКАТИ (ЛОКАЛЬНІ)
     acme = {
       acceptTerms     = true;
       defaults.email  = "admin@localhost";
@@ -725,6 +738,7 @@
       };
     };
   };
+
 
   environment.memoryAllocator.provider  = "scudo";           # Використання scudo як аллокатора пам'яті для підвищення безпеки
   environment.variables.SCUDO_OPTIONS   = "ZeroContents=1";  # Налаштування scudo для ініціалізації пам'яті нулями
