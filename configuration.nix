@@ -456,7 +456,11 @@
           domain = "localhost";
         };
         
-      }
+        alerting = {
+          enabled = true;
+          execute_alerts = true;
+        };
+      };
     };
 
     # Централізоване зберігання логів
