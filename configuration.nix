@@ -477,6 +477,17 @@
       };
     };
 
+    aide = {
+      mail.enable = false;  # Вимикаємо зовнішні сповіщення
+      reportPath = "/var/log/aide/report-$(date +%Y-%m-%d).txt";
+      extraConfig = ''
+        !define DBdir      /var/lib/aide
+        !define LOGdir     /var/log/aide
+        database=file:${DBdir}/aide.db.gz
+        database_out=file:${DBdir}/aide.db.new.gz
+      '';
+    };
+
     # Збір та аналіз логів
     promtail = {
       enable = true;
