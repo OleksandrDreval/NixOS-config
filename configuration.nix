@@ -414,6 +414,19 @@
     };
 
 
+    # NTOPNG
+    ntopng = {
+      extraConfig = ''
+        --interface=lo
+        --local-networks="127.0.0.0/8"
+        --http-port=127.0.0.1:3001
+        --https-port=127.0.0.1:3002
+        --disable-autologout
+        --user=ntopng
+      '';
+    };
+
+
                           # ЖУРНАЛЮВАННЯ
     /*  Налаштування journald для журналювання подій системи.
         Вмикаємо аудит, стиснення логів, пересилання до syslog,
