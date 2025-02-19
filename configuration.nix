@@ -450,7 +450,13 @@
     # Візуалізація логів
     grafana = {
       enable = true;
-      settings.server.http_port = 4000;
+      settings = {
+        server = {
+          http_addr = 127.0.0.1;
+          domain = "localhost";
+        };
+        
+      }
     };
 
     # Централізоване зберігання логів
@@ -488,6 +494,25 @@
       };
 
       openFirewall = false;
+    };
+
+
+    # ЛОКАЛЬНИЙ NGINX
+    nginx = {
+      enable = true;
+      recommendedTlsSettings = true;
+      virtualHosts = {
+        "monitoring.local" = {
+          serverName = "monitoring.local";
+          listen = [{ addr = "127.0.0.1"; port = 443; ssl = true; }];
+          sslCertificate = "/var/lib/acme/monitoring.local/fullchain.pem";
+          sslCertificateKey = "/var/lib/acme/monitoring.local/key.pem";
+          locations."/" = {
+            proxyPass = "http://localhost:4000"; # Grafana
+            proxyWebsockets = true;
+            };
+        };
+      };
     };
 
 
