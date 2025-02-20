@@ -192,6 +192,12 @@
     tmpOnTmpfs  = true;  # Використання tmpfs для /tmp
   };
 
+    # Вимкнути таймери ACME
+    systemd.timers."acme-monitoring.local" = {
+      enable    = false;
+      wantedBy  = [];
+    };
+
 
 
   # МЕРЕЖА
@@ -314,10 +320,10 @@
         "tftp"
       ];
 
-      logRefusedConnections = true;   # Логування відхилених з'єднань
-      logReversePathDrops   = true;   # Логування відкинутих пакетів через зворотній шлях
-      logIPv6Drops          = true;   # Логування відкинутих IPv6 пакетів
-      logDenied             = "all";  # Журналювання всіх відхилених з'єднань
+      logRefusedConnections  = true;   # Логування відхилених з'єднань
+      logReversePathDrops    = true;   # Логування відкинутих пакетів через зворотній шлях
+      logIPv6Drops           = true;   # Логування відкинутих IPv6 пакетів
+      logDenied              = "all";  # Журналювання всіх відхилених з'єднань
     };
   };
 
@@ -332,8 +338,8 @@
 
   # Налаштування локалізації та мови інтерфейсу
   i18n = {
-    defaultLocale       = "uk_UA.UTF-8";                # Встановлюємо мову за замовчуванням (UTF-8 кодування)
-    extraLocaleSettings = { LC_ALL = "uk_UA.UTF-8"; };  # Встановлюємо мову для всіх категорій локалізації.
+    defaultLocale        = "uk_UA.UTF-8";                # Встановлюємо мову за замовчуванням (UTF-8 кодування)
+    extraLocaleSettings  = { LC_ALL = "uk_UA.UTF-8"; };  # Встановлюємо мову для всіх категорій локалізації.
   };
 
 
@@ -374,8 +380,8 @@
         Plasma 6 обрана як стабільне та функціональне середовище з гарною підтримкою 
         та зручним користувацьким інтерфейсом.  */
     displayManager = {
-      sddm.enable                     = true;  # Вмикаємо SDDM як менеджер дисплея
-      desktopManager.plasma6.enable   = true;  # Вмикаємо KDE Plasma 6 як робоче середовище
+      sddm.enable                    = true;  # Вмикаємо SDDM як менеджер дисплея
+      desktopManager.plasma6.enable  = true;  # Вмикаємо KDE Plasma 6 як робоче середовище
     };
 
 
@@ -388,17 +394,17 @@
         з Pipewire між двома аудіосистемами та покращити продуктивність  */
     pulseaudio.enable   = false;  # Вимикаємо PulseAudio на користь Pipewire.
     pipewire = {
-      enable            = true;   # Активуємо Pipewire як основну аудіосистему для сучасного оброблення звукових потоків
-      alsa.enable       = true;   # ALSA забезпечує прямий доступ до апаратного забезпечення, що необхідно для сумісності з різними пристроями
-      pulse.enable      = true;   # Емуляція PulseAudio забезпечує підтримку додатків, що розраховані на цей старіший інтерфейс, без необхідності їх модифікації
-      alsa.support32Bit = true;   # Ця опція важлива для сумісності з 32-бітними додатками, які можуть використовувати застарілі драйвери чи програмне забезпечення
+      enable             = true;   # Активуємо Pipewire як основну аудіосистему для сучасного оброблення звукових потоків
+      alsa.enable        = true;   # ALSA забезпечує прямий доступ до апаратного забезпечення, що необхідно для сумісності з різними пристроями
+      pulse.enable       = true;   # Емуляція PulseAudio забезпечує підтримку додатків, що розраховані на цей старіший інтерфейс, без необхідності їх модифікації
+      alsa.support32Bit  = true;   # Ця опція важлива для сумісності з 32-бітними додатками, які можуть використовувати застарілі драйвери чи програмне забезпечення
       extraConfig.pipewire."92-low-latency" = {
         # Налаштування для зниження затримок аудіо сигналу, що важливо для забезпечення плавного відтворення звуку
         context.properties.default.clock = {
-          rate = 48000;       # Встановлюємо частоту дискретизації в 48000 Гц для високоякісного аудіо
-          quantum = 32;       # Визначаємо розмір буфера обробки аудіо даних (quantum), що впливає на продуктивність та латентність
-          min-quantum = 32;   # Встановлюємо мінімальний розмір квантового буфера для стабільної роботи системи
-          max-quantum = 32;   # Встановлюємо максимальний розмір квантового буфера для уникнення надмірних затримок
+          rate         = 48000; # Встановлюємо частоту дискретизації в 48000 Гц для високоякісного аудіо
+          quantum      = 32;    # Визначаємо розмір буфера обробки аудіо даних (quantum), що впливає на продуктивність та латентність
+          min-quantum  = 32;    # Встановлюємо мінімальний розмір квантового буфера для стабільної роботи системи
+          max-quantum  = 32;    # Встановлюємо максимальний розмір квантового буфера для уникнення надмірних затримок
         };
       };
     };
@@ -408,8 +414,8 @@
     dnsmasq = {
       enable = true;
       settings = {
-        address = "/monitoring.local/127.0.0.1";
-        listen-address = "127.0.0.1";
+        address         = "/monitoring.local/127.0.0.1";
+        listen-address  = "127.0.0.1";
       };
     };
 
@@ -417,10 +423,8 @@
     # NTOPNG
     ntopng = {
       extraConfig = ''
-        --interface=lo
-        --local-networks="127.0.0.0/8"
-        --http-port=127.0.0.1:3001
-        --https-port=127.0.0.1:3002
+        --interface=lo              # Аналіз лише локального трафіку
+        --http-port=127.0.0.1:3001  # Правильне обмеження
         --disable-autologout
         --user=ntopng
       '';
@@ -457,16 +461,16 @@
       enable = true;
       exporters = {
         node = {
-          enable = true;
-          enabledCollectors = [ "systemd" "logind" "network" ];
-          openFirewall = false;
+          enable             = true;
+          enabledCollectors  = [ "systemd" "logind" "network" ];
+          openFirewall       = false;
         };
       };
 
       scrapeConfigs = [
         {
-          job_name = "nixos";
-          static_configs = [{ targets = [ "localhost:9100" ]; }];
+          job_name        = "nixos";
+          static_configs  = [{ targets = [ "localhost:9100" ]; }];
         }
       ];
     };
@@ -476,13 +480,13 @@
       enable = true;
       settings = {
         server = {
-          http_addr = 127.0.0.1;
-          domain = "localhost";
+          http_addr  = 127.0.0.1;
+          domain     = "localhost";
         };
         
         alerting = {
-          enabled = true;
-          execute_alerts = true;
+          enabled         = true;
+          execute_alerts  = true;
         };
       };
     };
@@ -494,8 +498,8 @@
         auth_enabled = false;
         ingester = {
           lifecycler = {
-            address = "127.0.0.1";
-            ring = { kvstore = { store = "inmemory"; }; };
+            address  = "127.0.0.1";
+            ring     = { kvstore = { store = "inmemory"; }; };
           };
         };
       };
@@ -504,8 +508,8 @@
 
     # AIDE
     aide = {
-      mail.enable = false;  # Вимикаємо зовнішні сповіщення
-      reportPath = "/var/log/aide/report-$(date +%Y-%m-%d).txt";
+      mail.enable  = false;                                         # Вимикаємо зовнішні сповіщення
+      reportPath   = "/var/log/aide/report-$(date +%Y-%m-%d).txt";
       extraConfig = ''
         !define DBdir      /var/lib/aide
         !define LOGdir     /var/log/aide
@@ -518,16 +522,16 @@
     promtail = {
       enable = true;
       configuration = {
-        server = { http_listen_port = 9080; };
-        clients = [{ url = "http://localhost:3100/loki/api/v1/push"; }];
+        server   = { http_listen_port = 9080; };
+        clients  = [{ url = "http://localhost:3100/loki/api/v1/push"; }];
         scrape_configs = [
           {
-            job_name = "journal";
-            journal = { max_age = "12h"; };
+            job_name  = "journal";
+            journal   = { max_age = "12h"; };
             relabel_configs = [
               {
-                source_labels = ["__journal__hostname"];
-                target_label = "host";
+                source_labels  = ["__journal__hostname"];
+                target_label   = "host";
               }
             ];
           }
@@ -540,17 +544,22 @@
 
     # NGINX
     nginx = {
-      enable = true;
-      recommendedTlsSettings = true;
+      enable                  = true;
+      recommendedTlsSettings  = true;
       virtualHosts = {
         "monitoring.local" = {
           serverName = "monitoring.local";
-          listen = [{ addr = "127.0.0.1"; port = 443; ssl = true; }];
-          sslCertificate = "/var/lib/acme/monitoring.local/fullchain.pem";
-          sslCertificateKey = "/var/lib/acme/monitoring.local/key.pem";
+          listen = [{ 
+            addr  = "127.0.0.1"; 
+            port  = 443; 
+            ssl   = true; 
+          }];
+
+          sslCertificate     = "/var/lib/acme/monitoring.local/fullchain.pem";
+          sslCertificateKey  = "/var/lib/acme/monitoring.local/key.pem";
           locations."/" = {
-            proxyPass = "http://localhost:4000"; # Grafana
-            proxyWebsockets = true;
+            proxyPass        = "http://localhost:4000"; # Grafana
+            proxyWebsockets  = true;
             };
         };
       };
@@ -695,8 +704,8 @@
           unlockTime          = 600;      # Час блокування облікового запису після невдалих спроб
         };
         
-        sudo.enableKrb5 = false;  # Вимкнення Kerberos для sudo
-        sshd.enableKrb5 = false;  # Вимкнення Kerberos для SSH
+        sudo.enableKrb5  = false;  # Вимкнення Kerberos для sudo
+        sshd.enableKrb5  = false;  # Вимкнення Kerberos для SSH
       };
 
       # Обмеження ресурсів для користувачів
@@ -710,44 +719,43 @@
 
     # Налаштування SELinux
     selinux = {
-      enable     = true;        # Вмикаємо SELinux
-      enforce    = true;        # Увімкнення режиму застосування політик
-      type       = "targeted";  # Режим цільового захисту
+      enable              = true;                           # Вмикаємо SELinux
+      enforce             = true;                           # Увімкнення режиму застосування політик
+      type                = "targeted";                     # Режим цільового захисту
       extraModulePackages = with pkgs; [ selinux-policy ];  # Додаткові політики
     };
 
     # Додаємо AppArmor разом з SELinux
     apparmor = {
-      enable                    = true;
-      killUnconfinedConfinables = true;
-      packages = [ pkgs.apparmor-profiles ];  # Стандартні профілі
+      enable                     = true;
+      killUnconfinedConfinables  = true;
+      packages                   = [ pkgs.apparmor-profiles ];  # Стандартні профілі
     };
 
     # MAC для критичних сервісів
     mac = {
       # Профіль для libvirt
       libvirtd = {
-        enable  = true;
-        profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.libvirtd";
+        enable   = true;
+        profile  = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.libvirtd";
       };
       
       # Профіль для веб-сервера
       nginx = {
-        enable  = true;
-        profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.nginx";
+        enable   = true;
+        profile  = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.nginx";
       };
     };
 
 
     # TLS СЕРТИФІКАТИ (ЛОКАЛЬНІ)
     acme = {
-      acceptTerms     = true;
-      defaults.email  = "admin@localhost";
+      acceptTerms = true;
       certs."monitoring.local" = {
-        domain            = "monitoring.local";
-        extraDomainNames  = [ "localhost" "127.0.0.1" ];
-        dnsProvider       = "null";                       # Використовуємо самопідписані сертифікати
-        reloadServices    = [ "nginx" ];
+        domain         = "monitoring.local";
+        dnsProvider    = "null";
+        renewInterval  = "never";                    # Вимкнути автоматичне оновлення
+        postRun        = "systemctl restart nginx";  # Генерувати сертифікат лише при першому запуску
       };
     };
   };
@@ -782,8 +790,8 @@
     /*  Користувачі, яким дозволено виконувати привілейовані операції:
         - root: системний адміністратор
         - @wheel: користувачі з правами адміністратора  */
-    trusted-users = [ "root" "@wheel" ];
-    allowed-users = [ "root" "@wheel" ];
+    trusted-users  = [ "root" "@wheel" ];
+    allowed-users  = [ "root" "@wheel" ];
   };
 
   /*  Дозвіл на використання пропрієтарного програмного забезпечення
@@ -822,6 +830,8 @@
     aide
     lynis
     osquery
+
+    ntopng
     
     # Дисковий простір
     gparted
@@ -835,25 +845,25 @@
 
   # ВІРТУАЛІЗАЦІЯ
   virtualisation = {
-    useEFIBoot    = true;
-    useSecureBoot = true;
+    useEFIBoot     = true;
+    useSecureBoot  = true;
     # Налаштування libvirt для керування віртуалізацією
     libvirtd = {
-      enable     = true;           # Увімкнення служби libvirt
-      onBoot     = "ignore";       # Не запускати віртуальні машини автоматично при завантаженні
-      onShutdown = "shutdown";     # Завершувати віртуальні машини при вимкненні системи
+      enable      = true;           # Увімкнення служби libvirt
+      onBoot      = "ignore";       # Не запускати віртуальні машини автоматично при завантаженні
+      onShutdown  = "shutdown";     # Завершувати віртуальні машини при вимкненні системи
       
       qemu = {
-        package           = pkgs.qemu_kvm;    # Використання KVM для апаратного прискорення
-        runAsRoot         = false;            # Запуск QEMU без прав root
-        swtpm.enable      = true;             # Увімкнення підтримки TPM
-        vhostUserPackages = [pkgs.virtiofsd]; # Підтримка virtiofsd
+        package            = pkgs.qemu_kvm;    # Використання KVM для апаратного прискорення
+        runAsRoot          = false;            # Запуск QEMU без прав root
+        swtpm.enable       = true;             # Увімкнення підтримки TPM
+        vhostUserPackages  = [pkgs.virtiofsd]; # Підтримка virtiofsd
         ovmf = {
-          enable          = true; # Увімкнення OVMF для UEFI
+          enable = true; # Увімкнення OVMF для UEFI
           packages = [
             (pkgs.OVMF.override {
-              secureBoot = true; # Увімкнення Secure Boot
-              tpmSupport = true; # Підтримка TPM
+              secureBoot  = true; # Увімкнення Secure Boot
+              tpmSupport  = true; # Підтримка TPM
             })
             .fd
           ];
@@ -861,12 +871,12 @@
       };
 
       extraConfig = ''
-        security_default_confined   = 1           # Увімкнення захисту за замовчуванням
-        security_driver             = "selinux"   # Використання SELinux для захисту
-        user                        = "oleksandr"  # Користувач для запуску віртуальних машин
-        group                       = "@libvirt"  # Група для запуску віртуальних машин
-        dynamic_ownership           = 1           # Динамічне призначення власника файлів
-        remember_owner              = 1           # Запам'ятовування власника файлів
+        security_default_confined  = 1           # Увімкнення захисту за замовчуванням
+        security_driver            = "selinux"   # Використання SELinux для захисту
+        user                       = "oleksandr"  # Користувач для запуску віртуальних машин
+        group                      = "@libvirt"  # Група для запуску віртуальних машин
+        dynamic_ownership          = 1           # Динамічне призначення власника файлів
+        remember_owner             = 1           # Запам'ятовування власника файлів
 
         # Дозволені пристрої для cgroup
         cgroup_device_acl = [
@@ -886,9 +896,9 @@
 
     # Налаштування мережі за замовчуванням для віртуальних машин
     defaultNetwork = {
-      enable        = true;     # Увімкнення мережі за замовчуванням
-      name          = "virbr0"; # Ім'я мережевого інтерфейсу
-      forwardMode   = "nat";    # Використання NAT для виходу в інтернет
+      enable       = true;     # Увімкнення мережі за замовчуванням
+      name         = "virbr0"; # Ім'я мережевого інтерфейсу
+      forwardMode  = "nat";    # Використання NAT для виходу в інтернет
     };
   };
 
