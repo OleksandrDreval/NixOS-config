@@ -430,6 +430,15 @@
 
 
     # BACKUP
+    /*  Ініціалізація сховища: 
+          sudo -s
+          borg init --encryption=repokey /backup
+
+        Перевірка бекапів:
+          borg list /backup
+
+        Відновлення даних:
+          borg extract /backup::<назва-бекапу> <шлях-для-відновлення>  */
     borgbackup = {
       jobs."system-backup" = {
         paths = [
