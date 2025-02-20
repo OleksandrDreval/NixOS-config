@@ -579,7 +579,11 @@
           locations."/" = {
             proxyPass        = "http://localhost:4000"; # Grafana
             proxyWebsockets  = true;
-            };
+            extraConfig = ''
+              allow 192.168.1.0/24;  # Ваша локальна мережа
+              deny all;
+            '';
+          };
         };
       };
     };
