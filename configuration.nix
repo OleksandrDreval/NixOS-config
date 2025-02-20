@@ -205,15 +205,22 @@
       wantedBy  = [];
     };
     
-    services = {
-      grafana.serviceConfig = {
-        Restart        = "on-failure";  # Перезапуск при збоях
-        RuntimeMaxSec  = 12h;           # Автовимкнення після 12 годин
+    services.grafana.serviceConfig = {
+      Restart        = "on-failure";  # Перезапуск при збоях
+      RuntimeMaxSec  = 12h;           # Автовимкнення після 12 годин
+    };
+
+    services.prometheus.serviceConfig = {
+      Restart = "no"  # Не перезапускати автоматично
       };
 
-      prometheus.serviceConfig = {
-        Restart = "no"  # Не перезапускати автоматично
+    services."borg-check" = {
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.borgbackup}/bin/borg check /backup";
       };
+
+      startAt = "weekly";
     };
   };
 
