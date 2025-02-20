@@ -429,6 +429,42 @@
     };
 
 
+    # BACKUP
+    borgbackup = {
+      jobs."system-backup" = {
+        paths = [
+          "/etc/nixos"  # Основна конфігурація NixOS
+          "/var/lib"    # Дані служб та додатків
+          "/home"       # Користувацькі дані
+        ];
+
+        exclude = [
+          "*.tmp"           # Всі тимчасові файли
+          "*.cache"         # Кеш-файли
+          "/home/*/.cache"  # Користувацькі кеші
+        ];
+
+        repo = "/backup";  # Шлях до сховища бекапів
+        # Шифрування для безпеки
+        encryption = {
+          mode = "repokey";
+          passphrase = "...mysecretpassphrase...";
+        };
+
+        compression = "auto,zstd";                 # Автоматичний вибір алгоритму
+        startAt   = "daily";                       # Щоденний бекап о 00:00
+        preHook   = "systemctl stop postgresql";   # Зупинка служб перед бекапом
+        postHook  = "systemctl start postgresql";  # Запуск служб після бекапу
+        # Політика зберігання
+        prune.keep = {
+          daily    = 7;
+          weekly   = 4;
+          monthly  = 12;
+        };
+      };
+    };
+
+
     # ЛОКАЛЬНИЙ DNS
     dnsmasq = {
       enable = true;
