@@ -478,6 +478,8 @@
     # Система збору метрик
     prometheus = {
       enable = true;
+      retentionTime                = "720h";  # 30 днів
+      storage.tsdb.retention.size  = "10GB";  # Для SSD
       exporters = {
         node = {
           enable             = true;
@@ -506,6 +508,11 @@
         alerting = {
           enabled         = true;
           execute_alerts  = true;
+        };
+
+        database = {
+          max_open_conn      = 25;     # Оптимально для SSD
+          conn_max_lifetime  = 14400;  # 4 години
         };
       };
     };
@@ -580,7 +587,7 @@
             proxyPass        = "http://localhost:4000"; # Grafana
             proxyWebsockets  = true;
             extraConfig = ''
-              allow 192.168.1.0/24;  # Ваша локальна мережа
+              allow 192.168.1.0/24;  # Локальна мережа
               deny all;
             '';
           };
