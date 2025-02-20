@@ -496,9 +496,20 @@
       ];
     };
 
+
     # Візуалізація логів Grafana
     grafana = {
       enable = true;
+      provision = {
+        alerting = {
+          contactPoints = [{
+            name          = "local-alerts";
+            type          = "webhook";
+            settings.url  = "http://localhost:9093/alertmanager";
+          }];
+        };
+      };
+
       settings = {
         server = {
           http_addr  = 127.0.0.1;
@@ -516,6 +527,7 @@
         };
       };
     };
+
 
     # Централізоване зберігання логів
     loki = {
