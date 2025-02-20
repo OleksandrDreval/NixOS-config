@@ -76,6 +76,7 @@
       "stf_barrier                =on"                        # Активує бар'єр Single Thread Fault; встановлює додатковий захист від атак, що використовують однониткові вразливості.
       "usercopy                   =strict"                    # Суворі перевірки копіювання даних між user space та ядром; знижує ризик передачі некоректних або шкідливих даних.
       "vsyscall                   =none"                      # Вимкнення vsyscall; відключає застарілий механізм викликів, що може бути використаний у атаках.
+      "vm.swappiness"             = 10;                       # Налаштування swappiness для зменшення використання swap
     ];
 
     # Підтримувані файлові системи
@@ -899,18 +900,26 @@
     memoryPercent  = 25;      # Чверть(1/4) від загального обсягу оперативної пам'яті
   };
 
+  /*  Перевірка статусу:
+        mount | grep /tmp
+          # tmpfs on /tmp type tmpfs (rw,nosuid,nodev,noexec,relatime,size=4096M,mode=1777)
+      
+      Зміна розміру під час роботи:
+        sudo mount -o remount,size=8G /tmp
+      
+      Створення резервної копії:
+        tar -czf /persistent/tmp-backup.tar.gz -C /tmp .  */
   fileSystems."/tmp" = {
     device  = "none";   # Спеціальне значення для tmpfs
     fsType  = "tmpfs";
     # Основні параметри монтування
     options = [
-      "size=2G"           # Максимальний розмір 2 ГБ
+      "size=4G"           # Максимальний розмір 2 ГБ
       "mode=1777"         # Права доступу (sticky bit + rwx для всіх)
       "nosuid"            # Заборона SUID/SGID бітів
       "nodev"             # Заборона спеціальних пристроїв
       "noexec"            # Заборона виконання файлів
       "nr_inodes=1M"      # Максимальна кількість inode
-      "mpol=prefer:Node"  # Оптимізація NUMA
     ];
 
     # Додаткові параметри безпеки
