@@ -192,11 +192,24 @@
     tmpOnTmpfs  = true;  # Використання tmpfs для /tmp
   };
 
-    # Вимкнути таймери ACME
-    systemd.timers."acme-monitoring.local" = {
+  # SYSTEMD SERVICES
+  systemd = {
+    timers."acme-monitoring.local" = {
       enable    = false;
       wantedBy  = [];
     };
+    
+    services = {
+      grafana.serviceConfig = {
+        Restart        = "on-failure";  # Перезапуск при збоях
+        RuntimeMaxSec  = 12h;           # Автовимкнення після 12 годин
+      };
+
+      prometheus.serviceConfig = {
+        Restart = "no"  # Не перезапускати автоматично
+      };
+    };
+  };
 
 
 
