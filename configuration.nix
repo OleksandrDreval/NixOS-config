@@ -801,8 +801,6 @@
   };
 
 
-  environment.memoryAllocator.provider  = "scudo";           # Використання scudo як аллокатора пам'яті для підвищення безпеки
-  environment.variables.SCUDO_OPTIONS   = "ZeroContents=1";  # Налаштування scudo для ініціалізації пам'яті нулями
   environment.etc = {
     # Заборона входу root через TTY
     securetty.text = ''
@@ -813,6 +811,17 @@
     machine-id.text = ''
       4e8b0b4e0ef1f0e5d2c8d39f8c77f6b3
     '';
+  };
+
+
+
+  # ПАМ'ЯТЬ
+  environment.memoryAllocator.provider  = "scudo";           # Використання scudo як аллокатора пам'яті для підвищення безпеки
+  environment.variables.SCUDO_OPTIONS   = "ZeroContents=1";  # Налаштування scudo для ініціалізації пам'яті нулями
+  zramSwap = {
+    enable         = true;
+    algorithm      = "zstd";  # Найкраща стиснення
+    memoryPercent  = 25;      # Чверть(1/4) від загального обсягу оперативної пам'яті
   };
 
 
