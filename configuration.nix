@@ -617,6 +617,15 @@
       rebootKey               = "ignore";   # Ігноруємо кнопку перезавантаження
       suspendKey              = "ignore";   # Ігноруємо кнопку сну
     };
+
+
+    cron = {
+      enable = true;
+      systemCronJobs = {
+        "30 23 * * * root /path/to/backup-script"  # Щоденний бекап о 23:30 (якщо система активна)
+        "@reboot root rm -rf /tmp/*"               # Очищення тимчасових файлів при запуску
+      };
+    };
   };
 
 
