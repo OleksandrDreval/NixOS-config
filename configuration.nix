@@ -456,21 +456,21 @@
         встановлюємо обмеження на розмір та час зберігання файлів,
         а також інші параметри для оптимізації та безпеки.  */
     journald.extraConfig = ''
-      Audit             =yes          # Вмикаємо аудит системи
-      Compress          =yes          # Вмикаємо стиснення лог-файлів
-      ForwardToSyslog   =yes          # Пересилаємо логи до syslog
-      MaxLevelStore     =warning      # Максимальний рівень повідомлень, що зберігаються локально
-      MaxLevelSyslog    =info         # Максимальний рівень повідомлень, що відправляються до syslog
-      MaxRetentionSec   =1week        # Максимальний час зберігання логів - 1 тиждень
-      RateLimitBurst    =100          # Кількість повідомлень перед застосуванням обмеження швидкості
-      RateLimitInterval =30s          # Інтервал часу для обмеження швидкості
-      RuntimeKeepFree   =200M         # Мінімальний вільний простір для runtime логів
-      RuntimeMaxUse     =100M         # Максимальний розмір runtime логів
-      Seal              =yes          # Захист цілісності логів
-      Storage           =persistent   # Зберігання логів на постійному носії
-      SystemKeepFree    =1G           # Мінімальний вільний простір для системних логів
-      SystemMaxFiles    =100          # Максимальна кількість системних лог-файлів
-      SystemMaxUse      =500M         # Максимальний розмір системних логів
+      Audit              =yes          # Вмикаємо аудит системи
+      Compress           =yes          # Вмикаємо стиснення лог-файлів
+      ForwardToSyslog    =yes          # Пересилаємо логи до syslog
+      MaxLevelStore      =warning      # Максимальний рівень повідомлень, що зберігаються локально
+      MaxLevelSyslog     =info         # Максимальний рівень повідомлень, що відправляються до syslog
+      MaxRetentionSec    =1week        # Максимальний час зберігання логів - 1 тиждень
+      RateLimitBurst     =100          # Кількість повідомлень перед застосуванням обмеження швидкості
+      RateLimitInterval  =30s          # Інтервал часу для обмеження швидкості
+      RuntimeKeepFree    =200M         # Мінімальний вільний простір для runtime логів
+      RuntimeMaxUse      =100M         # Максимальний розмір runtime логів
+      Seal               =yes          # Захист цілісності логів
+      Storage            =persistent   # Зберігання логів на постійному носії
+      SystemKeepFree     =1G           # Мінімальний вільний простір для системних логів
+      SystemMaxFiles     =100          # Максимальна кількість системних лог-файлів
+      SystemMaxUse       =500M         # Максимальний розмір системних логів
     '';
 
 
@@ -781,7 +781,8 @@
       acceptTerms = true;
       certs."monitoring.local" = {
         domain         = "monitoring.local";
-        dnsProvider    = "null";
+        extraDomainNames = [ "grafana.local" "prometheus.local" ];
+        dnsProvider = "null";
         renewInterval  = "never";                    # Вимкнути автоматичне оновлення
         postRun        = "systemctl restart nginx";  # Генерувати сертифікат лише при першому запуску
       };
