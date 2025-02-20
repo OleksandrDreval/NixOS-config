@@ -194,6 +194,12 @@
 
   # SYSTEMD SERVICES
   systemd = {
+    extraConfig = ''
+      DefaultTimeoutStartSec=15s
+      DefaultTimeoutStopSec=15s
+      DefaultRestartSec=5s
+    '';
+
     timers."acme-monitoring.local" = {
       enable    = false;
       wantedBy  = [];
