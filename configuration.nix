@@ -899,6 +899,11 @@
     memoryPercent  = 25;      # Чверть(1/4) від загального обсягу оперативної пам'яті
   };
 
+  fileSystems."/tmp" = {
+    fsType = "tmpfs";
+    options = [ "defaults" "size=2G" "mode=1777" "nosuid" "nodev" "noexec" ];
+  };
+
 
 
   # NIX
