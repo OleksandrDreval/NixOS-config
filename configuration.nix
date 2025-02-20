@@ -471,6 +471,17 @@
           monthly  = 12;
         };
       };
+
+      extraSettings = {
+        "repository" = {
+          "append_only"    = 1;       # Захист від випадкового видалення
+          "storage_quota"  = "500G";  # Обмеження місця
+        };
+        
+        "cache" = {
+          "max_cache_age"  = "30d";   # Оновлення кешу
+        };
+      };
     };
 
 
