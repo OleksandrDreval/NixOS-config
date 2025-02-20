@@ -900,8 +900,22 @@
   };
 
   fileSystems."/tmp" = {
-    fsType = "tmpfs";
-    options = [ "defaults" "size=2G" "mode=1777" "nosuid" "nodev" "noexec" ];
+    device  = "none";   # Спеціальне значення для tmpfs
+    fsType  = "tmpfs";
+    # Основні параметри монтування
+    options = [
+      "size=2G"           # Максимальний розмір 2 ГБ
+      "mode=1777"         # Права доступу (sticky bit + rwx для всіх)
+      "nosuid"            # Заборона SUID/SGID бітів
+      "nodev"             # Заборона спеціальних пристроїв
+      "noexec"            # Заборона виконання файлів
+      "nr_inodes=1M"      # Максимальна кількість inode
+      "mpol=prefer:Node"  # Оптимізація NUMA
+    ];
+
+    # Додаткові параметри безпеки
+    neededForBoot  = false;  # Не потрібен під час завантаження
+    noCheck        = true;   # Пропустити fsck
   };
 
 
