@@ -524,7 +524,7 @@
       ForwardToSyslog    =yes          # Пересилаємо логи до syslog
       MaxLevelStore      =warning      # Максимальний рівень повідомлень, що зберігаються локально
       MaxLevelSyslog     =info         # Максимальний рівень повідомлень, що відправляються до syslog
-      MaxRetentionSec    =1week        # Максимальний час зберігання логів - 1 тиждень
+      MaxRetentionSec    =30day        # Максимальний час зберігання логів - 30 днів
       RateLimitBurst     =100          # Кількість повідомлень перед застосуванням обмеження швидкості
       RateLimitInterval  =30s          # Інтервал часу для обмеження швидкості
       RuntimeKeepFree    =200M         # Мінімальний вільний простір для runtime логів
