@@ -36,10 +36,12 @@
         /*  Створення розділу:
               sudo cryptsetup luksFormat /dev/sdX --hash sha512 --iter-time 5000  */
         devices."crypt-tmp" = {
-          device            = "/dev/disk/by-partlabel/CRYPT_TMP";
-          keyFile           = "/etc/crypt-keys/tmp.key";
-          keySize           = 512;
-          bypassWorkqueues  = true;
+          device = "/dev/disk/by-partlabel/crypt-tmp";
+          keyFile = null;  # Вимкнути ключ-файли
+          preLVM = true;
+          allowDiscards = true;
+          
+          
         };
       };
 
@@ -900,6 +902,9 @@
     machine-id.text = ''
       4e8b0b4e0ef1f0e5d2c8d39f8c77f6b3
     '';
+
+    # Встановлення пароля для LUKS шифрування
+    "crypt-tmp-password".text = "...";
   };
 
 
