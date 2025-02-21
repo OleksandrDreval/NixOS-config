@@ -785,8 +785,8 @@
       execWheelOnly   = true;  # Дозволяємо виконання sudo лише користувачам з групи wheel
       extraConfig = ''
         Defaults insults                 # Додаємо образливі повідомлення при невдалій спробі sudo
-        Defaults passwd_timeout     =25  # Час очікування введення пароля (25 секунд)
-        Defaults timestamp_timeout  =15  # Час дії кешування пароля (15 хвилин)
+        Defaults passwd_timeout     =25  # Час очікування введення пароля
+        Defaults timestamp_timeout  =15  # Час дії кешування пароля
         Defaults use_pty                 # Використання PTY для всіх команд sudo
       '';
     };
@@ -944,7 +944,8 @@
 
 
   # NIX
-  nix.settings = {
+  nix = {
+    settings = {
     /*  Включення експериментальних функцій:
         nix-command: дозволяє використовувати нову команду nix
         flakes: впроваджує нову модель управління пакетами  */
@@ -958,6 +959,7 @@
         - @wheel: користувачі з правами адміністратора  */
     trusted-users  = [ "root" "@wheel" ];
     allowed-users  = [ "root" "@wheel" ];
+    };
   };
 
   /*  Дозвіл на використання пропрієтарного програмного забезпечення
