@@ -217,11 +217,15 @@
 
     services."borg-check" = {
       serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${pkgs.borgbackup}/bin/borg check /backup";
+        Type       = "oneshot";
+        ExecStart  = "${pkgs.borgbackup}/bin/borg check /backup";
       };
 
       startAt = "weekly";
+    };
+
+    services.nginx.serviceConfig = {
+      PrivateTmp = true;  # Використовувати ізольований /tmp
     };
   };
 
@@ -900,7 +904,16 @@
     memoryPercent  = 25;      # Чверть(1/4) від загального обсягу оперативної пам'яті
   };
 
-  /*  Перевірка статусу:
+  /*    Перевірка розміру
+          df -h /tmp
+
+        Перегляд inode
+          df -i /tmp
+
+        Деталі монтування
+          findmnt -T /tmp
+  
+      Перевірка статусу:
         mount | grep /tmp
           # tmpfs on /tmp type tmpfs (rw,nosuid,nodev,noexec,relatime,size=4096M,mode=1777)
       
