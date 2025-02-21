@@ -32,6 +32,15 @@
       luks = {
         devices."luks-911765a7-6ecb-4c99-88ef-b44c26fd3583".device = "/dev/disk/by-uuid/911765a7-6ecb-4c99-88ef-b44c26fd3583";
         mitigateDMAAttacks = true;  # Захист від атак DMA
+
+        /*  Створення розділу:
+              sudo cryptsetup luksFormat /dev/sdX --hash sha512 --iter-time 5000  */
+        devices."crypt-tmp" = {
+          device            = "/dev/disk/by-partlabel/CRYPT_TMP";
+          keyFile           = "/etc/crypt-keys/tmp.key";
+          keySize           = 512;
+          bypassWorkqueues  = true;
+        };
       };
 
       systemd.enable       = true;  # Увімкнення systemd в initrd
