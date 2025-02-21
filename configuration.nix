@@ -32,20 +32,9 @@
       luks = {
         devices."luks-911765a7-6ecb-4c99-88ef-b44c26fd3583".device = "/dev/disk/by-uuid/911765a7-6ecb-4c99-88ef-b44c26fd3583";
         mitigateDMAAttacks = true;  # Захист від атак DMA
-
-        /*  Створення розділу:
-              sudo cryptsetup luksFormat /dev/sdX --hash sha512 --iter-time 5000  */
-        devices."crypt-tmp" = {
-          device = "/dev/disk/by-partlabel/crypt-tmp";
-          keyFile = null;  # Вимкнути ключ-файли
-          preLVM = true;
-          allowDiscards = true;
-          
-          
-        };
       };
 
-      systemd.enable       = true;  # Увімкнення systemd в initrd
+      systemd.enable = true;  # Увімкнення systemd в initrd
     };
 
     /*  Повернення до latest kernel в заміну hardened kernel 
@@ -200,8 +189,8 @@
       "sysv"    "udf"       "ufs"        "vivid"
     ];
 
-    cleanTmpDir = true;  # Очищення тимчасової директорії при кожному запуску системи
-    tmpOnTmpfs  = true;  # Використання tmpfs для /tmp
+    cleanTmpDir  = true;  # Очищення тимчасової директорії при кожному запуску системи
+    tmpOnTmpfs   = true;  # Використання tmpfs для /tmp
   };
 
   # SYSTEMD SERVICES
@@ -244,11 +233,11 @@
 
   # МЕРЕЖА
   networking = {
-    hostName                    = "Rampart-Nix";  # Назва хоста
-    networkmanager.enable       = true;           # Використання NetworkManager
-    networkmanager.wifi.backend = "iwd";          # Використання iwd як бекенду для Wi-Fi
-    enableIPv6                  = true;           # Увімкнення IPv6
-    tempAddresses               = "disabled";     # Вимкнення тимчасових адрес
+    hostName                     = "Rampart-Nix";  # Назва хоста
+    networkmanager.enable        = true;           # Використання NetworkManager
+    networkmanager.wifi.backend  = "iwd";          # Використання iwd як бекенду для Wi-Fi
+    enableIPv6                   = true;           # Увімкнення IPv6
+    tempAddresses                = "disabled";     # Вимкнення тимчасових адрес
 
     # Налаштування iwd для Wi-Fi з рандомізацією MAC-адрес
     wireless.iwd = {
@@ -274,9 +263,9 @@
 
     #БРАНДМАУЕР
     firewall = {
-      enable        = true;   # Увімкнення брандмауера
-      allowPing     = false;  # Заборона ping запитів
-      rejectPackets = true;   # Блокування замість відкидання пакетів
+      enable         = true;   # Увімкнення брандмауера
+      allowPing      = false;  # Заборона ping запитів
+      rejectPackets  = true;   # Блокування замість відкидання пакетів
       # Дозволені TCP порти:
       allowedTCPPorts = [
         53    # DNS
@@ -479,8 +468,8 @@
         repo = "/backup";  # Шлях до сховища бекапів
         # Шифрування для безпеки
         encryption = {
-          mode = "repokey";
-          passphrase = "...mysecretpassphrase...";
+          mode        = "repokey";
+          passphrase  = "...mysecretpassphrase...";
         };
 
         compression = "auto,zstd";                 # Автоматичний вибір алгоритму
@@ -556,7 +545,7 @@
     # МОНІТОРИНГ ЛОГІВ
     # Система збору метрик
     prometheus = {
-      enable = true;
+      enable                       = true;
       retentionTime                = "720h";  # 30 днів
       storage.tsdb.retention.size  = "10GB";  # Для SSD
       exporters = {
@@ -849,10 +838,10 @@
 
     # Налаштування SELinux
     selinux = {
-      enable              = true;                           # Вмикаємо SELinux
-      enforce             = true;                           # Увімкнення режиму застосування політик
-      type                = "targeted";                     # Режим цільового захисту
-      extraModulePackages = with pkgs; [ selinux-policy ];  # Додаткові політики
+      enable               = true;                           # Вмикаємо SELinux
+      enforce              = true;                           # Увімкнення режиму застосування політик
+      type                 = "targeted";                     # Режим цільового захисту
+      extraModulePackages  = with pkgs; [ selinux-policy ];  # Додаткові політики
     };
 
     # Додаємо AppArmor разом з SELinux
@@ -882,11 +871,11 @@
     acme = {
       acceptTerms = true;
       certs."monitoring.local" = {
-        domain         = "monitoring.local";
-        extraDomainNames = [ "grafana.local" "prometheus.local" ];
-        dnsProvider = "null";
-        renewInterval  = "never";                    # Вимкнути автоматичне оновлення
-        postRun        = "systemctl restart nginx";  # Генерувати сертифікат лише при першому запуску
+        domain            = "monitoring.local";
+        extraDomainNames  = [ "grafana.local" "prometheus.local" ];
+        dnsProvider       = "null";
+        renewInterval     = "never";                    # Вимкнути автоматичне оновлення
+        postRun           = "systemctl restart nginx";  # Генерувати сертифікат лише при першому запуску
       };
     };
   };
@@ -902,9 +891,6 @@
     machine-id.text = ''
       4e8b0b4e0ef1f0e5d2c8d39f8c77f6b3
     '';
-
-    # Встановлення пароля для LUKS шифрування
-    "crypt-tmp-password".text = "...";
   };
 
 
@@ -941,12 +927,13 @@
     fsType  = "tmpfs";
     # Основні параметри монтування
     options = [
-      "size=4G"           # Максимальний розмір 2 ГБ
+      "encrypted"
       "mode=1777"         # Права доступу (sticky bit + rwx для всіх)
-      "nosuid"            # Заборона SUID/SGID бітів
       "nodev"             # Заборона спеціальних пристроїв
       "noexec"            # Заборона виконання файлів
+      "nosuid"            # Заборона SUID/SGID бітів
       "nr_inodes=1M"      # Максимальна кількість inode
+      "size=4G"           # Максимальний розмір 2 ГБ
     ];
 
     # Додаткові параметри безпеки
