@@ -1,5 +1,0 @@
----
-description: access-vscode-services.mdc
-globs: vscode/**/*.tsx
----
-access-vscode-services.mdc
