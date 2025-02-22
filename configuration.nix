@@ -206,7 +206,7 @@
       wantedBy  = [];
     };
     
-    systemd.services.coredump.enable = false;
+    services.coredump.enable = false;
 
     services.grafana.serviceConfig = {
       Restart        = "on-failure";  # Перезапуск при збоях
