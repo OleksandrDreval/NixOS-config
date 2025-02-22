@@ -206,6 +206,8 @@
       wantedBy  = [];
     };
     
+    systemd.services.coredump.enable = false;
+
     services.grafana.serviceConfig = {
       Restart        = "on-failure";  # Перезапуск при збоях
       RuntimeMaxSec  = 12h;           # Автовимкнення після 12 годин
