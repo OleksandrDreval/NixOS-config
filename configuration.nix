@@ -855,21 +855,6 @@
       ];
     };
 
-    # MAC для критичних сервісів
-    mac = {
-      # Профіль для libvirt
-      libvirtd = {
-        enable   = true;
-        profile  = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.libvirtd";
-      };
-      
-      # Профіль для веб-сервера
-      nginx = {
-        enable   = true;
-        profile  = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.nginx";
-      };
-    };
-
 
     # TLS СЕРТИФІКАТИ (ЛОКАЛЬНІ)
     acme = {
