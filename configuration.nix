@@ -838,19 +838,21 @@
     
     rtkit.enable = true;  # Вмикаємо rtkit для процесів у реальному часі
 
-    # Налаштування SELinux
-    selinux = {
-      enable               = true;                           # Вмикаємо SELinux
-      enforce              = true;                           # Увімкнення режиму застосування політик
-      type                 = "targeted";                     # Режим цільового захисту
-      extraModulePackages  = with pkgs; [ selinux-policy ];  # Додаткові політики
-    };
-
     # Додаємо AppArmor разом з SELinux
     apparmor = {
       enable                     = true;
       killUnconfinedConfinables  = true;
       packages                   = [ pkgs.apparmor-profiles ];  # Стандартні профілі
+      profiles = [
+        {
+          name    = "libvirtd";
+          profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.libvirtd";
+        }
+        {
+          name    = "nginx";
+          profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.nginx";
+        }
+      ];
     };
 
     # MAC для критичних сервісів
