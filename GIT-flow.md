@@ -1,118 +1,89 @@
-#Впровадження Git-flow
+# Гайд Git-flow
 
-## 1. Створення основних гілок
-За замовчуванням у проєкті є лише гілка `main`. Для впровадження Git-flow потрібно створити гілку `develop`:
+## 1. Ініціалізація Git-flow
+
 ```bash
-# Перейти в main (на всякий випадок)
-git checkout main
-
-# Створити нову гілку develop і переключитися на неї
+git init
 git checkout -b develop
-
-# Завантажити зміни в віддалений репозиторій
 git push -u origin develop
 ```
-Тепер у проєкті є дві основні гілки:
-- `main` – для стабільних релізів
-- `develop` – для активної розробки
 
-## 2. Створення та злиття гілок
+## 2. Основні гілки в Git-flow
 
-### 2.1 Додавання нової функції (Feature)
+\*релізна конфігурація після перевірки та налагодження повинна бути перенесена з гілок розробки(any develop\`s branch) до основної (main).
+
+- **main** – Cтабільна (релізна) версія коду.
+- **develop** – Гілка розробки.
+- Функціональні гілки.
+- **hotfix/** – Виправлення критичних багів.
+
+## 3. Створення нових гілок
+
 ```bash
-# Переключитися на develop
-git checkout develop
-
-# Створити нову гілку для функції
-git checkout -b feature/назва-функції
-
-# Після завершення розробки злити зміни в develop
-git checkout develop
-git merge feature/назва-функції
-
-# Видалити непотрібну гілку
-git branch -d feature/назва-функції
+git checkout -b назва
 ```
 
-### 2.2 Підготовка до релізу (Release)
+Після завершення роботи:
+
 ```bash
-# Переключитися на develop
 git checkout develop
+git merge назва
+git branch -d назва
+git push origin develop --delete назва
+```
 
-# Створити нову гілку для релізу
-git checkout -b release/версія
+## 4. Перемикання між гілками
 
-# Після тестування злити зміни в main
+```bash
+git checkout main  # Перехід у main
+git checkout develop  # Перехід у develop
+```
+
+## 5. Злиття гілок
+
+Злиття `develop` у `main`:
+
+```bash
 git checkout main
-git merge release/версія
+git merge develop
+git push origin main
+```
 
-git tag версія  # Позначити реліз тегом
+## ??? Використання rebase
 
-# Злити зміни назад у develop
+```bash
 git checkout develop
-git merge release/версія
-
-# Видалити непотрібну гілку
-git branch -d release/версія
+git rebase main
+git push origin develop --force-with-lease
 ```
 
-### 2.3 Термінове виправлення (Hotfix)
+## 6. Створення файлів, які існують лише у `develop`
+
 ```bash
-# Переключитися на main
-git checkout main
-
-# Створити нову гілку для виправлення
-git checkout -b hotfix/назва
-
-# Після виправлення злити зміни в main
-git checkout main
-git merge hotfix/назва
-
-git tag нова-версія  # Позначити новий реліз
-
-# Злити зміни в develop, щоб вони не загубилися
 git checkout develop
-git merge hotfix/назва
-
-# Видалити непотрібну гілку
-git branch -d hotfix/назва
+mkdir dev-only-files
+echo "Цей файл існує лише у розробці" > dev-only-files/example.txt
+git add dev-only-files/
+git commit -m "Додані файли, що існують лише у develop"
+git push origin develop
 ```
 
-## 3. Перемикання між гілками
+Щоб **файли не потрапили в \*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*\*****`main`**, уникай `merge develop → main`. Якщо потрібно злити лише частину змін, використовуй `cherry-pick`:
+
 ```bash
-# Перейти на main
 git checkout main
-
-# Перейти на develop
-git checkout develop
-
-# Перейти на гілку функції
-git checkout feature/назва
+git cherry-pick <commit_id>
+git push origin main
 ```
-Або скорочена версія (для нових версій Git):
+
+Якщо файли випадково потрапили в `main`:
+
 ```bash
-git switch main
-git switch develop
-git switch feature/назва
+git checkout main
+git rm -r dev-only-files/
+git commit -m "Видалення файлів, що мають бути лише у develop"
+git push origin main
 ```
 
-## 4. Злиття гілок
+Таким чином, файли залишаться лише у `develop`, а `main` буде чистим.
 
-### 4.1 Об’єднання `develop` → `main` (перед релізом)
-```bash
-git checkout main  # Перейти в main
-git merge develop  # Злити зміни з develop у main
-```
-
-### 4.2 Об’єднання `main` → `develop` (після hotfix)
-```bash
-git checkout develop  # Перейти в develop
-git merge main  # Злити зміни з main у develop
-```
-
-## 5. Видалення гілок
-Після злиття можна видалити непотрібну гілку:
-```bash
-git branch -d назва-гілки  # Видалити локально
-git push origin --delete назва-гілки  # Видалити у віддаленому репозиторії
-```
