@@ -69,10 +69,12 @@ git push origin develop
 ```
 
 Щоб **файли не потрапили в `main`**, уникай `merge develop → main`. Якщо потрібно злити лише частину змін, використовуй `cherry-pick`:
+*abc123^..def456 – НЕ включає abc123, але включає def456.
+ abc123..def456 – ВКЛЮЧАЄ abc123 і всі наступні до def456.
 
 ```bash
 git checkout main
-git cherry-pick <commit_id>
+git cherry-pick <початковий_commit>..<кінцевий_commit>
 git push origin main
 ```
 
