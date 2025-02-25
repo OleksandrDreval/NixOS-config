@@ -77,7 +77,6 @@
       "spectre_v2                 =on"                        # Захист від Spectre v2; активує механізми для зменшення ризиків, пов'язаних з недоліками предиктивного виконання.
       "stf_barrier                =on"                        # Активує бар'єр Single Thread Fault; встановлює додатковий захист від атак, що використовують однониткові вразливості.
       "usercopy                   =strict"                    # Суворі перевірки копіювання даних між user space та ядром; знижує ризик передачі некоректних або шкідливих даних.
-      "vm.swappiness              =10"                        # Налаштування swappiness для зменшення використання swap
       "vsyscall                   =none"                      # Вимкнення vsyscall; відключає застарілий механізм викликів, що може бути використаний у атаках.
     ];
 
@@ -170,6 +169,7 @@
       "vm.mmap_rnd_bits"                            = "32";           # Рандомізація адресного простору. Ускладнює використання ROP-атак.
       "vm.mmap_rnd_compat_bits"                     = "16";           # Рандомізація для 32-бітних додатків. Аналогічний захист для 32-бітних програм.
       "vm.unprivileged_userfaultfd"                 = "0";            # Вимкнення userfaultfd для непривілейованих користувачів. Це покращує безпеку, запобігаючи використанню userfaultfd для атак.
+      "vm.swappiness"                               = "10";           # Налаштування swappiness для зменшення використання swap
     };
 
     /* Бан-лист небезпечних або застрілих модулів ядра */
@@ -560,6 +560,11 @@
           job_name        = "nixos";
           static_configs  = [{ targets = [ "localhost:9100" ]; }];
         }
+        # Додано інтеграцію з Loki
+        {
+          job_name = "loki";
+          static_configs = [{ targets = [ "localhost:3100" ]; }];
+        }
       ];
     };
 
@@ -579,9 +584,25 @@
 
       settings = {
         server = {
-          http_addr  = 127.0.0.1;
+          http_addr  = "127.0.0.1";
+          http_port  = 4000;
           domain     = "localhost";
-          http_port  = 4000;         # Додано порт 4000, щоб відповідати налаштуванням Nginx
+        };
+        # Додано інтеграцію з Prometheus та Loki
+        "datasources.yaml" = {
+          apiVersion = 1;
+          datasources = [
+            {
+              name = "Prometheus";
+              type = "prometheus";
+              url = "http://localhost:9090";
+            },
+            {
+              name = "Loki";
+              type = "loki";
+              url = "http://localhost:3100";
+            }
+          ];
         };
         
         alerting = {
@@ -861,7 +882,6 @@
           name    = "usr.sbin.sshd";
           profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.sshd";
         }
-
         # Профілі для віртуалізації
         {
           name    = "usr.sbin.libvirtd";
@@ -940,16 +960,17 @@
     acme = {
       acceptTerms = true;
       certs."monitoring.local" = {
-        domain            = "monitoring.local";
-        extraDomainNames  = [ "grafana.local" "prometheus.local" ];
-        # Змінено на самопідписаний сертифікат для локальних доменів
-        webroot           = "/var/lib/acme/acme-challenge";
-        email             = "admin@example.com";
-        # Використовуємо самопідписаний сертифікат
-        server            = "https://acme-staging-v02.api.letsencrypt.org/directory";
-        # Оновлення кожні 60 днів
-        renewInterval     = "60d";
-        postRun           = "systemctl restart nginx";
+        domain = "monitoring.local";
+        # Використовуємо самопідписані сертифікати
+        credentialsFile = "/var/lib/acme/self-signed-credentials";
+        # Генерація самопідписаного сертифіката
+        postRun = ''
+          ${pkgs.openssl}/bin/openssl req -x509 -nodes -days 365 \
+            -newkey rsa:2048 \
+            -keyout ${config.security.acme.certs."monitoring.local".directory}/key.pem \
+            -out ${config.security.acme.certs."monitoring.local".directory}/cert.pem \
+            -subj "/CN=monitoring.local"
+        '';
       };
     };
   };
