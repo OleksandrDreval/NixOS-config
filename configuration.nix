@@ -57,7 +57,6 @@
       "kernel.printk              =\"3 4 1 3\""               # Налаштування рівня логування ядра; обмежує обсяг виводу для зменшення потенційної витоку інформації.
       "l1tf                       =full,force"                # Захист від L1 Terminal Fault; забезпечує повний захист від атак з використанням недоліків кешу першого рівня.
       "lockdown                   =confidentiality:integrity" # Режим блокування ядра; обмежує зміну критичних параметрів для підтримки конфіденційності та цілісності системи.
-      "loglevel                   =0"                         # Мінімальний рівень логування ядра; зменшує кількість детальної інформації для потенційних зловмисників.
       "mds                        =full,nosmt"                # Захист від MDS (Microarchitectural Data Sampling); запобігає передачі даних між потоками завдяки відключенню SMT.
       "mitigations                =auto,nosmt"                # Автоматичне застосування патчів для відомих вразливостей з відключенням SMT для підвищення безпеки.
       "module.sig_enforce         =1"                         # Вимога підпису модулів ядра; гарантує, що завантажуються лише авторизовані і перевірені модулі.
@@ -204,11 +203,6 @@
       DefaultTimeoutStopSec=15s
       DefaultRestartSec=5s
     '';
-
-    timers."acme-monitoring.local" = {
-      enable    = false;
-      wantedBy  = [];
-    };
     
     services.coredump.enable = false;
 
@@ -588,6 +582,7 @@
         server = {
           http_addr  = 127.0.0.1;
           domain     = "localhost";
+          http_port  = 4000;         # Додано порт 4000, щоб відповідати налаштуванням Nginx
         };
         
         alerting = {
@@ -670,7 +665,7 @@
           sslCertificate     = "/var/lib/acme/monitoring.local/fullchain.pem";
           sslCertificateKey  = "/var/lib/acme/monitoring.local/key.pem";
           locations."/" = {
-            proxyPass        = "http://localhost:4000"; # Grafana
+            proxyPass        = "http://localhost:4000";  # Grafana на порту 4000
             proxyWebsockets  = true;
             extraConfig = ''
               allow 192.168.1.0/24;  # Локальна мережа
@@ -874,7 +869,7 @@
           profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.libvirtd";
         }
         {
-          name    = "usr.lib.libvirt.virt-aa-helper";
+          name    = "virt-aa-helper";
           profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.lib.libvirt.virt-aa-helper";
         }
         # Власний профіль для Grafana
@@ -948,9 +943,14 @@
       certs."monitoring.local" = {
         domain            = "monitoring.local";
         extraDomainNames  = [ "grafana.local" "prometheus.local" ];
-        dnsProvider       = "null";
-        renewInterval     = "never";                    # Вимкнути автоматичне оновлення
-        postRun           = "systemctl restart nginx";  # Генерувати сертифікат лише при першому запуску
+        # Змінено на самопідписаний сертифікат для локальних доменів
+        webroot           = "/var/lib/acme/acme-challenge";
+        email             = "admin@example.com";
+        # Використовуємо самопідписаний сертифікат
+        server            = "https://acme-staging-v02.api.letsencrypt.org/directory";
+        # Оновлення кожні 60 днів
+        renewInterval     = "60d";
+        postRun           = "systemctl restart nginx";
       };
     };
   };
@@ -1107,19 +1107,18 @@
             (pkgs.OVMF.override {
               secureBoot  = true; # Увімкнення Secure Boot
               tpmSupport  = true; # Підтримка TPM
-            })
-            .fd
+            }).fd
           ];
         };
       };
 
       extraConfig = ''
-        security_default_confined  = 1           # Увімкнення захисту за замовчуванням
-        security_driver            = "selinux"   # Використання SELinux для захисту
+        security_default_confined  = 1            # Увімкнення захисту за замовчуванням
+        security_driver            = "apparmor"   # Використання AppArmor для захисту
         user                       = "oleksandr"  # Користувач для запуску віртуальних машин
-        group                      = "@libvirt"  # Група для запуску віртуальних машин
-        dynamic_ownership          = 1           # Динамічне призначення власника файлів
-        remember_owner             = 1           # Запам'ятовування власника файлів
+        group                      = "libvirt"    # Виправлено групу для запуску віртуальних машин
+        dynamic_ownership          = 1            # Динамічне призначення власника файлів
+        remember_owner             = 1            # Запам'ятовування власника файлів
 
         # Дозволені пристрої для cgroup
         cgroup_device_acl = [
