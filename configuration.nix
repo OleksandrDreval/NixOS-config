@@ -227,6 +227,14 @@
       PrivateTmp = true;  # Використовувати ізольований /tmp
     };
 
+    /*  1. Ініціалізація бази даних:
+            sudo systemctl start aide-init  # Створити початкову базу
+
+        2. Ручна перевірка:
+            sudo aide --check
+
+        3. Перегляд звітів:
+            sudo journalctl -u aide-check.service  */
     services.aide-init = {
       description = "Initialize AIDE database";
       serviceConfig = {
