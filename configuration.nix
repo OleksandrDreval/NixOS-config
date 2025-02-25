@@ -77,6 +77,10 @@
       "usercopy                   =strict"                    # Суворі перевірки копіювання даних між user space та ядром; знижує ризик передачі некоректних або шкідливих даних.
       "vsyscall                   =none"                      # Вимкнення vsyscall; відключає застарілий механізм викликів, що може бути використаний у атаках.
       "vm.swappiness"             = 10;                       # Налаштування swappiness для зменшення використання swap
+      
+      "apparmor=1"                                            # Увімкнення AppArmor
+      "security=apparmor"                                     # Встановлення AppArmor як LSM (Linux Security Module)
+      "audit=1"                                               # Увімкнення аудиту для AppArmor
     ];
 
     # Підтримувані файлові системи
@@ -838,19 +842,101 @@
     
     rtkit.enable = true;  # Вмикаємо rtkit для процесів у реальному часі
 
-    # Додаємо AppArmor разом з SELinux
+    # Налаштування AppArmor для контролю доступу
     apparmor = {
-      enable                     = true;
-      killUnconfinedConfinables  = true;
-      packages                   = [ pkgs.apparmor-profiles ];  # Стандартні профілі
+      enable                     = true;                                            # Вмикаємо AppArmor
+      killUnconfinedConfinables  = true;                                            # Завершувати процеси, які повинні бути обмежені, але не є
+      packages                   = [ pkgs.apparmor-profiles pkgs.apparmor-utils ];  # Встановлюємо профілі та утиліти
+      
+      # Завантаження профілів AppArmor
       profiles = [
+        # Стандартні профілі для системних сервісів
         {
-          name    = "libvirtd";
+          name    = "usr.bin.firefox";
+          profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.bin.firefox";
+        }
+        {
+          name    = "usr.sbin.nginx";
+          profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.nginx";
+        }
+        {
+          name    = "usr.sbin.ntpd";
+          profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.ntpd";
+        }
+        {
+          name    = "usr.sbin.sshd";
+          profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.sshd";
+        }
+
+        # Профілі для віртуалізації
+        {
+          name    = "usr.sbin.libvirtd";
           profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.libvirtd";
         }
         {
-          name    = "nginx";
-          profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.sbin.nginx";
+          name    = "usr.lib.libvirt.virt-aa-helper";
+          profile = "${pkgs.apparmor-profiles}/etc/apparmor.d/usr.lib.libvirt.virt-aa-helper";
+        }
+        # Власний профіль для Grafana
+        {
+          name    = "grafana";
+          profile = ''
+            #include <tunables/global>
+
+            profile grafana flags=(attach_disconnected) {
+              #include <abstractions/base>
+              #include <abstractions/nameservice>
+              #include <abstractions/openssl>
+
+              # Дозволи для виконуваних файлів
+              ${pkgs.grafana}/bin/grafana-server mr,
+              ${pkgs.grafana}/bin/grafana-cli mr,
+
+              # Дозволи для конфігураційних файлів
+              /etc/grafana/** r,
+              /var/lib/grafana/** rwk,
+              /var/log/grafana/** rwk,
+
+              # Мережеві дозволи
+              network tcp,
+              network udp,
+
+              # Дозволи для тимчасових файлів
+              owner /tmp/** rwk,
+              owner /var/tmp/** rwk,
+
+              # Дозволи для системних файлів
+              /proc/sys/net/core/somaxconn r,
+              /sys/kernel/mm/transparent_hugepage/enabled r,
+            }
+          '';
+        }
+        # Власний профіль для Prometheus
+        {
+          name    = "prometheus";
+          profile = ''
+            #include <tunables/global>
+
+            profile prometheus flags=(attach_disconnected) {
+              #include <abstractions/base>
+              #include <abstractions/nameservice>
+
+              # Дозволи для виконуваних файлів
+              ${pkgs.prometheus}/bin/prometheus mr,
+
+              # Дозволи для конфігураційних файлів
+              /etc/prometheus/** r,
+              /var/lib/prometheus/** rwk,
+
+              # Мережеві дозволи
+              network tcp,
+              network udp,
+
+              # Дозволи для тимчасових файлів
+              owner /tmp/** rwk,
+              owner /var/tmp/** rwk,
+            }
+          '';
         }
       ];
     };
