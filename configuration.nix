@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   imports =
@@ -76,7 +76,7 @@
       "stf_barrier                =on"                        # Активує бар'єр Single Thread Fault; встановлює додатковий захист від атак, що використовують однониткові вразливості.
       "usercopy                   =strict"                    # Суворі перевірки копіювання даних між user space та ядром; знижує ризик передачі некоректних або шкідливих даних.
       "vsyscall                   =none"                      # Вимкнення vsyscall; відключає застарілий механізм викликів, що може бути використаний у атаках.
-      "vm.swappiness"             = 10;                       # Налаштування swappiness для зменшення використання swap
+      "vm.swappiness              =10"                        # Налаштування swappiness для зменшення використання swap
       
       "apparmor=1"                                            # Увімкнення AppArmor
       "security=apparmor"                                     # Встановлення AppArmor як LSM (Linux Security Module)
@@ -218,8 +218,8 @@
     };
 
     services.prometheus.serviceConfig = {
-      Restart = "no"  # Не перезапускати автоматично
-      };
+      Restart = "no";  # Не перезапускати автоматично
+    };
 
     services."borg-check" = {
       serviceConfig = {
@@ -625,8 +625,8 @@
       extraConfig = ''
         !define DBdir      /var/lib/aide
         !define LOGdir     /var/log/aide
-        database=file:${DBdir}/aide.db.gz
-        database_out=file:${DBdir}/aide.db.new.gz
+        database          =file:${DBdir}/aide.db.gz
+        database_out      =file:${DBdir}/aide.db.new.gz
       '';
     };
 
@@ -724,10 +724,10 @@
 
     cron = {
       enable = true;
-      systemCronJobs = {
+      systemCronJobs = [
         "30 23 * * * root /path/to/backup-script"  # Щоденний бекап о 23:30 (якщо система активна)
         "@reboot root rm -rf /tmp/*"               # Очищення тимчасових файлів при запуску
-      };
+      ];
     };
   };
 
