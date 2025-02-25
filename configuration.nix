@@ -226,6 +226,17 @@
     services.nginx.serviceConfig = {
       PrivateTmp = true;  # Використовувати ізольований /tmp
     };
+
+    services.aide-init = {
+      description = "Initialize AIDE database";
+      serviceConfig = {
+        Type           = "oneshot";
+        ExecStart      = "${pkgs.aide}/bin/aide --init";
+        ExecStartPost  = "${pkgs.coreutils}/bin/mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz";
+      };
+
+      wantedBy = [ "multi-user.target" ];
+    };
   };
 
 
