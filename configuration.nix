@@ -640,14 +640,28 @@
 
     # AIDE
     aide = {
-      mail.enable  = false;                                         # Вимикаємо зовнішні сповіщення
+      enable = true;                                        # Вимикаємо зовнішні сповіщення
       reportPath   = "/var/log/aide/report-$(date +%Y-%m-%d).txt";
       extraConfig = ''
         !define DBdir      /var/lib/aide
         !define LOGdir     /var/log/aide
         database          =file:${DBdir}/aide.db.gz
         database_out      =file:${DBdir}/aide.db.new.gz
+        /var/lib/aide/daily.db.gz
+        /var/lib/aide/aide.db.gz
       '';
+
+      cron = {
+        enable  = true;
+        at      = "daily";  # Щоденна перевірка
+      };
+
+      initOnStartup = true;  # Автоматичне оновлення бази даних після встановлення оновлень
+      # Налаштування електронної пошти для сповіщень
+      mail = {
+        enable     = true;
+        recipient  = "root@localhost";
+      };
     };
 
     # Збір та аналіз логів
