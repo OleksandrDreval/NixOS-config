@@ -355,6 +355,11 @@
       logIPv6Drops           = true;   # Логування відкинутих IPv6 пакетів
       logDenied              = "all";  # Журналювання всіх відхилених з'єднань
     };
+
+    extraHosts = ''
+      127.0.0.1 monitoring.local
+      ::1 monitoring.local
+    '';
   };
 
 
