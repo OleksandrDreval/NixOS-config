@@ -375,6 +375,10 @@
       logDenied              = "all";  # Журналювання всіх відхилених з'єднань
     };
 
+      # ЛОКАЛЬНИЙ DNS (/etc/hosts)
+    /*  Перевірка роботи DNS:
+          ping -c 4 monitoring.local
+          curl -vk https://monitoring.local  */
     extraHosts = ''
       127.0.0.1 monitoring.local
       ::1 monitoring.local
@@ -659,6 +663,10 @@
 
     # AIDE
     aide = {
+      /*  Тестування роботи AIDE:
+            sudo aide --check | tee /var/log/aide/last-check.log      # Ручна перевірка
+            sudo journalctl -u aide-check.service -b                  # Перегляд журналу
+            ls -lh /var/log/aide/aide-report-*.log                    # Перевірка звітів  */
       enable = true;                                        # Вимикаємо зовнішні сповіщення
       reportPath   = "/var/log/aide/report-$(date +%Y-%m-%d).txt";
       extraConfig = ''
